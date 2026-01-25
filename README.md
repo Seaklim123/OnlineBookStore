@@ -41,5 +41,14 @@ php artisan queue:work
 # permission reset
 php artisan permission:cache-reset
 
+# command create table
+php artisan make:migration create_orders_table
+
+# command create model
+php artisan make:model Order -m
+
+# command create controller 
+php artisan make:controller OrderController
+
 
 php artisan make:model YourModelName -mcr

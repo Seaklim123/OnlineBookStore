@@ -67,33 +67,77 @@ export default function MenuSideBar({ }) {
                             {can['category-list'] && (
                                 <li className="nav-header">SETTING</li>
                             )}
-                            {can['category-list'] && (
+                            {/* {can['category-list'] && (
                                 <>
                                 
                                 <li className={`nav-item ${(route().current('categories.index') || route().current('categories.create')) && 'menu-is-opening menu-open'}`}>
                                     <a href="#" className={`nav-link ${(route().current('categories.index') || route().current('categories.create')) && 'active'}`}>
                                         <i className="nav-icon far fa-plus-square"></i>
-                                        <p> CATEGORY
-                                            <i className="fas fa-angle-left right"></i>
-                                        </p>
+                                        <p> CATEGORY </p>                                           
                                     </a>
                                     <ul className="nav nav-treeview">
-                                        <li className="nav-item">
+                                        <li className="nav-item">                                          
                                             <Link href={route('categories.index')} className={`nav-link ${route().current('categories.index') && 'active'}`}>
                                                 <i className="fa-solid fa-list-ul nav-icon text-warning"></i>
-                                                <p>LIST</p>
-                                            </Link>
-                                        </li>
-                                        <li className="nav-item">
-                                            <Link href={route('categories.create')} className={`nav-link ${route().current('categories.create') && 'active'}`}>
-                                                <i className="fa-regular fa-square-plus nav-icon text-info"></i>
-                                                <p>CREATE</p>
+                                                <p>CATEGORY</p>
                                             </Link>
                                         </li>
                                     </ul>
                                 </li>
                                 </>
-                            )}
+                            )} */}
+
+                            <li className="nav-item px-2 mb-1"> {/* Added padding and margin for better alignment */}
+                                <Link
+                                    href={route('categories.index')}
+                                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition duration-200 ${
+                                        route().current('categories.index')
+                                            ? 'bg-blue-600 text-white active'
+                                            : 'text-gray-300 hover:bg-gray-800'
+                                    }`}
+                                >
+                                    {/* Reduced icon size to text-base and margin */}
+                                    <i className="fa-solid fa-table-cells text-base"></i>
+                                    
+                                    {/* Reduced font size to text-sm for a cleaner sidebar look */}
+                                    <span className="text-sm font-medium">Category</span>
+                                </Link>
+                            </li>
+
+                            <li className="nav-item px-2 mb-1"> {/* Added padding and margin for better alignment */}
+                                <Link
+                                    href={route('books.index')}
+                                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition duration-200 ${
+                                        route().current('books.index')
+                                            ? 'bg-blue-600 text-white active'
+                                            : 'text-gray-300 hover:bg-gray-800'
+                                    }`}
+                                >
+                                    {/* Reduced icon size to text-base and margin */}
+                                    <i className="fas fa-book text-base"></i>
+                                    
+                                    {/* Reduced font size to text-sm for a cleaner sidebar look */}
+                                    <span className="text-sm font-medium">Book</span>
+                                </Link>
+                            </li>
+
+                            <li className="nav-item px-2 mb-1"> {/* Added padding and margin for better alignment */}
+                                <Link
+                                    href={route('orders.index')}
+                                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition duration-200 ${
+                                        route().current('orders.index')
+                                            ? 'bg-blue-600 text-white active'
+                                            : 'text-gray-300 hover:bg-gray-800'
+                                    }`}
+                                >
+                                    {/* Reduced icon size to text-base and margin */}
+                                    <i className="fa-solid fa-cart-shopping text-base"></i>
+                                    
+                                    {/* Reduced font size to text-sm for a cleaner sidebar look */}
+                                    <span className="text-sm font-medium">Order</span>
+                                </Link>
+                            </li>
+
                             {can['role-list' || 'user-list'] && (
                                 <li className="nav-header">AUTHENTICATION</li>
                             )}

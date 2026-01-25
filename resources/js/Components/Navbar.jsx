@@ -15,6 +15,10 @@ const Navbar = ({ auth }) => {
     };
 
     const logout = () => {
+    if (!confirm('Are you sure you want to logout?')) {
+        return;
+    }
+
     router.post(route('logout'), {}, {
         onSuccess: () => {
             console.log('Logged out successfully');
@@ -22,7 +26,7 @@ const Navbar = ({ auth }) => {
         onError: (errors) => {
             console.log('Logout error', errors);
         }
-        });
+    });
     };
 
     const isAdmin = auth.user?.roles?.some(

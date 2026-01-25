@@ -43,14 +43,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-    Route::get('/books', [CategoryController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
-    Route::get('/books/create', [CategoryController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
-    Route::post('/books', [CategoryController::class, 'store'])->name('books.store');
-    Route::patch('/books/{id}', [CategoryController::class, 'update'])->name('books.update');
-    Route::get('/books/{id}', [CategoryController::class, 'edit'])->name('books.edit');
-    Route::delete('/books/{id}', [CategoryController::class, 'destroy'])->name('books.destroy');
-
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index')->middleware(['check:category-list']);
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create')->middleware(['check:category-create']);
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
@@ -58,6 +50,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories/{id}', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
+    // ===== BOOKS =====
+    Route::get('/books', [CategoryController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
+    Route::get('/books/create', [CategoryController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
+    Route::post('/books', [CategoryController::class, 'store'])->name('books.store');
+    Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
+    Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
+    Route::patch('/books/{id}', [CategoryController::class, 'update'])->name('books.update');
+    Route::get('/books/{id}', [CategoryController::class, 'edit'])->name('books.edit');
+    Route::delete('/books/{id}', [CategoryController::class, 'destroy'])->name('books.destroy');
+
+    // ===== ORDERS =====
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+
+    // ===== PAYMENTS =====
+    Route::post('/payments/{id}', [PaymentController::class, 'store'])->name('payments.store');
+
+    // ===== SHOPPING CART =====
+    Route::get('/cart', [ShoppingCartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [ShoppingCartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/item/{id}', [ShoppingCartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/item/{id}', [ShoppingCartController::class, 'remove'])->name('cart.remove');
+
+
+    // ===== ROLES & USERS =====
     Route::prefix('roles')->group(function () {
         Route::get('/', [RolesController::class, 'index'])->name('roles.index')->middleware(['check:role-list']);
         Route::get('/create', [RolesController::class, 'create'])->name('roles.create')->middleware(['check:role-create']);

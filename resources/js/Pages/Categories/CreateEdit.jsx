@@ -34,7 +34,7 @@ export default function CategoriesCreateEdit({ datas }) {
     };
 
     const headWeb = 'Category Create'
-    const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
+    const linksBreadcrumb = [{ title: 'Home', url: '/dashboard' }, { title: headWeb, url: '' }];
     return (
         <AdminLayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />} >
             <Head title={headWeb} />
@@ -50,7 +50,7 @@ export default function CategoriesCreateEdit({ datas }) {
                             <form onSubmit={submit}>
                                 <div className="card-body">
                                     <div className="form-group">
-                                        <label className='text-uppercase' htmlFor="title"><span className='text-danger'>*</span>Title</label>
+                                        <label className='text-uppercase' htmlFor="title"><span className='text-danger'>*</span>Category Name</label>
                                         <input
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
@@ -61,7 +61,7 @@ export default function CategoriesCreateEdit({ datas }) {
                                         />
                                         <InputError className="mt-2" message={errors.name} />
                                     </div>
-                                    <div className="form-group">
+                                    {/* <div className="form-group">
                                         <label className='text-uppercase' htmlFor="view_order"><span className='text-danger'>*</span>Order</label>
                                         <input
                                             value={data.view_order}
@@ -72,7 +72,7 @@ export default function CategoriesCreateEdit({ datas }) {
                                             id="view_order"
                                         />
                                         <InputError className="mt-2" message={errors.view_order} />
-                                    </div>
+                                    </div> */}
                                 </div>
                                 <div className="card-footer clearfix">
                                     <button disabled={processing} type="submit" className="btn btn-primary">

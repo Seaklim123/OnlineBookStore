@@ -45,7 +45,15 @@ export default function CategoriesPage({ categoryData }) {
         });
     };
     const headWeb = 'Category List'
-    const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
+    // const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
+    const linksBreadcrumb = [
+    {
+        title: 'Create',
+        type: 'button',
+        url: route('categories.create'),
+        className: 'btn btn-primary btn-sm'
+    }
+    ];
 
     return (
         <AdminLayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />} >
@@ -75,7 +83,6 @@ export default function CategoriesPage({ categoryData }) {
                                         <tr>
                                             <th>#ID</th>
                                             <th>Title</th>
-                                            <th>Order</th>
                                             <th>Created At</th>
                                             <th>Action</th>
                                         </tr>
@@ -86,7 +93,6 @@ export default function CategoriesPage({ categoryData }) {
                                                 <tr key={k}>
                                                     <td>{item?.id}</td>
                                                     <td>{item?.name}</td>
-                                                    <td>{item?.view_order}</td>
                                                     <td>{moment(item?.created_at).format("DD/MM/YYYY")}</td>
                                                     <td width={'170px'}>
                                                         <Link href={route('categories.edit', item.id)} class="btn btn-info btn-xs mr-2">
