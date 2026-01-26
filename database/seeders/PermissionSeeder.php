@@ -14,6 +14,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+
             'role-list',
             'role-create',
             'role-edit',
@@ -28,6 +29,11 @@ class PermissionSeeder extends Seeder
             'category-create',
             'category-edit',
             'category-delete',
+
+            'book-list',
+            'book-create',
+            'book-edit',
+            'book-delete',
         ];
 
         foreach ($permissions as $permission) {

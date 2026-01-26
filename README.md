@@ -51,4 +51,7 @@ php artisan make:model Order -m
 php artisan make:controller OrderController
 
 
+# php artisan storage:link
+
+
 php artisan make:model YourModelName -mcr

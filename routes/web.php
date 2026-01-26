@@ -4,6 +4,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ShoppingCartController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -51,14 +55,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // ===== BOOKS =====
-    Route::get('/books', [CategoryController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
-    Route::get('/books/create', [CategoryController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
-    Route::post('/books', [CategoryController::class, 'store'])->name('books.store');
+    Route::get('/books', [BookController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
+    Route::get('/books/create', [BookController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
     Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
-    Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
-    Route::patch('/books/{id}', [CategoryController::class, 'update'])->name('books.update');
-    Route::get('/books/{id}', [CategoryController::class, 'edit'])->name('books.edit');
-    Route::delete('/books/{id}', [CategoryController::class, 'destroy'])->name('books.destroy');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
+    Route::patch('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    // Route::get('/books/{id}', [BookController::class, 'edit'])->name('books.edit');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
 
     // ===== ORDERS =====
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

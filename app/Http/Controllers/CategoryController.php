@@ -37,8 +37,8 @@ class CategoryController extends Controller
     public function store(Request $request, Category $model)
     {
         $model->create($request->validate([
-            'name' => 'required|max:255|min:2',
-            'view_order' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|boolean',
         ]));
         return redirect()->route('categories.index');
         // return back()->with('message', 'Data added successfully');
@@ -69,8 +69,8 @@ class CategoryController extends Controller
     public function update(Request $request, Category $model, $id)
     {
         $request->validate([
-            'name' => 'required|max:255|min:2',
-            'view_order' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|boolean',
         ]);
         
         $rsDatasModel = Category::find($id);
@@ -82,11 +82,17 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category, $id)
+    public function destroy(Category $category , $id)
     {
-        $rsDatasModel = Category::find($id);
-        $rsDatasModel->delete();
+    // Check if there are any books linked to this category
+    if ($category->books()->exists()) {
+        return back()->withErrors([
+            'delete' => 'Cannot delete category: It is currently used by ' . $category->books()->count() . ' books.'
+        ]);
+    }
 
-        return back()->with('message', 'Deleted successfully');
+    $category->delete();
+
+    return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }

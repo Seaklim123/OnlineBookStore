@@ -15,4 +15,9 @@ class Category extends Model
         'name',
         'view_order',
     ];
+
+    public function books()
+    {
+    return $this->hasMany(Book::class);
+    }
 }

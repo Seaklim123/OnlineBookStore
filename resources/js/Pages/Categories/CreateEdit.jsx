@@ -10,12 +10,11 @@ import { Transition } from '@headlessui/react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function CategoriesCreateEdit({ datas }) {
-    const { data, setData, post, patch, errors, reset, processing, recentlySuccessful } =
+    const { data, setData, post, patch, errors, reset, processing } = 
         useForm({
-            name: datas.name ? datas.name : '',
-            view_order: datas.view_order ? datas.view_order : '',
-        });
-
+        name: datas?.name || '',
+        status: datas?.status ?? 1, // 1 = Active, 0 = Out of Stock
+    });
     const submit = (e) => {
         e.preventDefault();
         if (!datas.id) {
@@ -61,18 +60,22 @@ export default function CategoriesCreateEdit({ datas }) {
                                         />
                                         <InputError className="mt-2" message={errors.name} />
                                     </div>
-                                    {/* <div className="form-group">
-                                        <label className='text-uppercase' htmlFor="view_order"><span className='text-danger'>*</span>Order</label>
-                                        <input
-                                            value={data.view_order}
-                                            onChange={(e) => setData('view_order', e.target.value)}
-                                            type="number"
-                                            name="view_order"
-                                            className={`form-control ${errors.view_order && 'is-invalid'}`}
-                                            id="view_order"
-                                        />
-                                        <InputError className="mt-2" message={errors.view_order} />
-                                    </div> */}
+                                    <div className="form-group">
+                                    <label className="text-uppercase">
+                                        <span className="text-danger">*</span>Status
+                                    </label>
+
+                                    <select
+                                        value={data.status}
+                                        onChange={(e) => setData('status', e.target.value)}
+                                        className={`form-control ${errors.status && 'is-invalid'}`}
+                                    >
+                                        <option value="1">Active</option>
+                                        <option value="0">Out of Stock</option>
+                                    </select>
+
+                                    <InputError className="mt-2" message={errors.status} />
+                                </div>
                                 </div>
                                 <div className="card-footer clearfix">
                                     <button disabled={processing} type="submit" className="btn btn-primary">
