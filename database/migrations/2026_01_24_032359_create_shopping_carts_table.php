@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('shopping_carts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
+            $table->integer('status')->default(0); // 0: active, 1: completed, 2: cancelled
             $table->timestamps();
         });
     }

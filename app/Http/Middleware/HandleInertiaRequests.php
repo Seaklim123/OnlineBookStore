@@ -42,6 +42,11 @@ class HandleInertiaRequests extends Middleware
                         ->mapWithKeys(fn($permission) => [$permission->name => $user->can($permission->name)])
                         ->all()
                     : [],
+                'cartCount' => $request->user() 
+                ? \App\Models\ShoppingCartItem::whereHas('cart', function($query) use ($request) {
+                    $query->where('customer_id', $request->user()->id)->where('status', 0);
+                })->sum('quantity') 
+                : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

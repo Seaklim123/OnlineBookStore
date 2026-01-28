@@ -48,27 +48,38 @@ const Navbar = ({ auth }) => {
                         </Link>
 
                         <div className="flex items-center space-x-6">
-                            <Link href="/books" className="hover:text-blue-200">Books</Link>
+                            <Link href="/customer/books" className="hover:text-blue-200">Books</Link>
 
                             {auth.user ? (
-                                <>
-                                    {auth.user?.roles?.some(role => role.name === 'admin') ? (
-                                        <Link href="/dashboard" className="hover:text-blue-200">Dashboard</Link>
-                                    ) : (
-                                        <>
-                                            <Link href="/cart" className="hover:text-blue-200">🛒 Cart</Link>
-                                            <Link href="/orders" className="hover:text-blue-200">Orders</Link>
-                                        </>
-                                    )}
+                            <>
+                                {auth.user?.roles?.some(role => role.name === 'admin') ? (
+                                    <Link href="/dashboard" className="hover:text-blue-200">Dashboard</Link>
+                                ) : (
+                                    <>
+                                        <Link href="/cart" className="hover:text-blue-200 flex items-center gap-1 group">
+                                            <div className="relative">
+                                                <span className="text-xl">🛒</span>
+                                                {auth.cartCount > 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg border-2 border-white">
+                                                        {auth.cartCount}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="ml-1">Cart</span>
+                                        </Link>
+                                        <Link href="/orders" className="hover:text-blue-200">Orders</Link>
+                                    </>
+                                )}
 
-                                    <span className="text-sm">Hi, {auth.user.name}</span>
-                                    <button
-                                        onClick={logout}
-                                        className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
-                                    >
-                                        Logout
-                                    </button>
-                                </>
+                                <span className="text-sm">Hi, {auth.user.name}</span>
+                                <button
+                                    onClick={logout}
+                                    className="bg-red-500 px-4 py-2 rounded hover:bg-red-600"
+                                >
+                                    Logout
+                                </button>
+                            </>
+
                             ) : (
                                 <>
                                     <button onClick={() => setLoginOpen(true)} className="hover:text-blue-200">

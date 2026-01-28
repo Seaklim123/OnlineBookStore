@@ -36,10 +36,15 @@ export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
         }
 
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onSuccess: () => {
+                reset();
+                if (onClose) onClose(); 
+            },
             onError: (errs) => {
                 const messages = Object.values(errs).flat().join(' ');
                 setCustomError(messages);
+
+                if (onClose) onClose();
             },
         });
     };

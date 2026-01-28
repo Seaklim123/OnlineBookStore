@@ -7,9 +7,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ShoppingCartController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Customer\BookController as CustomerBookController;
+use App\Http\Controllers\Customer\ShoppingCartController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Inertia\Inertia;
 
@@ -58,7 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/books', [BookController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
-    Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
+    Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
     Route::patch('/books/{book}', [BookController::class, 'update'])->name('books.update');
     // Route::get('/books/{id}', [BookController::class, 'edit'])->name('books.edit');
@@ -71,13 +73,6 @@ Route::middleware('auth')->group(function () {
 
     // ===== PAYMENTS =====
     Route::post('/payments/{id}', [PaymentController::class, 'store'])->name('payments.store');
-
-    // ===== SHOPPING CART =====
-    Route::get('/cart', [ShoppingCartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [ShoppingCartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/item/{id}', [ShoppingCartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/item/{id}', [ShoppingCartController::class, 'remove'])->name('cart.remove');
-
 
     // ===== ROLES & USERS =====
     Route::prefix('roles')->group(function () {
@@ -96,6 +91,26 @@ Route::middleware('auth')->group(function () {
         Route::patch("/{id}", [UserController::class, 'update'])->name('users.update');
         Route::delete("/{id}", [UserController::class, 'destroy'])->name('users.destroy')->middleware(['check:user-delete']);
     });
+});
+
+Route::prefix('customer')->group(function () {
+    Route::get('/books', [CustomerBookController::class, 'index'])
+        ->name('customer.books.index');
+
+    Route::get('/books/{book}', [CustomerBookController::class, 'show'])
+        ->name('customer.books.show');
+});
+Route::middleware('auth')->group(function () {
+    // ===== SHOPPING CART =====
+
+     Route::get('/cart', [ShoppingCartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{book}', [ShoppingCartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/update/{cartItem}', [ShoppingCartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cartItem}', [ShoppingCartController::class, 'destroy'])->name('cart.remove');
+
+    Route::post('/order', [CustomerOrderController::class, 'store']);
+    Route::get('/my-orders', [CustomerOrderController::class, 'index']);
+    Route::get('/my-orders/{order}', [CustomerOrderController::class, 'show']);
 });
 
 require __DIR__.'/auth.php';
