@@ -3,9 +3,33 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
-    //
+     public function index()
+    {
+        $orders = Order::where('customer_id', Auth::id()) // Only my orders
+            ->with(['items.book'])
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Customer/Order/Index', [
+            'orders' => $orders
+        ]);
+    }
+
+    public function show(Order $order)
+    {
+        // SECURITY: Check if the order belongs to the logged-in user
+        if ($order->customer_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('Customer/Order/Show', [
+            'order' => $order->load(['items.book'])
+        ]);
+    }
 }

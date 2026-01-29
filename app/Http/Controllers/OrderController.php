@@ -12,21 +12,23 @@ class OrderController extends Controller
 {
     public function index()
     {
+         $orders = Order::with(['items.book', 'customer'])
+        ->latest()
+        ->paginate(10); 
+
         return Inertia::render('Orders/Index', [
-            'orders' => Order::where('user_id', auth()->id())
-                ->with('items.book')
-                ->get()
+            'ordersData' => $orders
         ]);
     }
 
     public function store()
     {
-        $cart = ShoppingCart::where('user_id', auth()->id())
+        $cart = ShoppingCart::where('customer_id', auth()->id())
             ->with('items.book')
             ->firstOrFail();
 
         $order = Order::create([
-            'user_id' => auth()->id(),
+            'customer_id' => auth()->id(),
             'total_price' => $cart->items->sum(
                 fn ($item) => $item->book->price * $item->quantity
             ),
@@ -48,8 +50,33 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        // Load nested relationships: Order -> Items -> Book
+        $order->load(['customer', 'items.book']);
+
         return Inertia::render('Orders/Show', [
-            'order' => $order->load('items.book')
+            'order' => $order
         ]);
+    }
+
+    public function updateStatus(Request $request, Order $order)
+    {
+        $request->validate([
+        'status' => 'required|in:pending,completed,cancelled',
+        'cancel_reason' => 'required_if:status,cancelled|nullable|string',
+    ]);
+
+        // 2. Update explicitly to be safe
+        $order->status = $request->status;
+        
+        // If status is NOT cancelled, clear the reason
+        if ($request->status !== 'cancelled') {
+            $order->cancel_reason = null;
+        } else {
+            $order->cancel_reason = $request->cancel_reason;
+        }
+
+        $order->save();
+
+        return back();
     }
 }

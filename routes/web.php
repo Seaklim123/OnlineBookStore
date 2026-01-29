@@ -13,6 +13,7 @@ use App\Http\Controllers\Customer\BookController as CustomerBookController;
 use App\Http\Controllers\Customer\ShoppingCartController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Customer\CheckoutController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -69,7 +70,8 @@ Route::middleware('auth')->group(function () {
     // ===== ORDERS =====
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
     // ===== PAYMENTS =====
     Route::post('/payments/{id}', [PaymentController::class, 'store'])->name('payments.store');
@@ -103,14 +105,16 @@ Route::prefix('customer')->group(function () {
 Route::middleware('auth')->group(function () {
     // ===== SHOPPING CART =====
 
-     Route::get('/cart', [ShoppingCartController::class, 'index'])->name('cart.index');
+    Route::get('/cart', [ShoppingCartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{book}', [ShoppingCartController::class, 'add'])->name('cart.add');
     Route::put('/cart/update/{cartItem}', [ShoppingCartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{cartItem}', [ShoppingCartController::class, 'destroy'])->name('cart.remove');
 
-    Route::post('/order', [CustomerOrderController::class, 'store']);
-    Route::get('/my-orders', [CustomerOrderController::class, 'index']);
-    Route::get('/my-orders/{order}', [CustomerOrderController::class, 'show']);
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+
+    Route::get('/customer/orders', [CustomerOrderController::class, 'index'])->name('customer.orders.index');
+    Route::get('/customer/orders/{order}', [CustomerOrderController::class, 'show'])->name('customer.orders.show');
 });
 
 require __DIR__.'/auth.php';

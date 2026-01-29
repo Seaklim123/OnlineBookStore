@@ -67,7 +67,7 @@ const Navbar = ({ auth }) => {
                                             </div>
                                             <span className="ml-1">Cart</span>
                                         </Link>
-                                        <Link href="/orders" className="hover:text-blue-200">Orders</Link>
+                                        <Link href="/customer/orders" className="hover:text-blue-200">Orders</Link>
                                     </>
                                 )}
 

@@ -17,6 +17,11 @@ return new class extends Migration
             $table->dateTime('order_date');
             $table->double('order_total', 10, 2);
             $table->string('status')->default('pending');
+            $table->text('cancel_reason')->nullable();
+            $table->string('phone_number');
+            $table->text('shipping_address'); // For the location
+            $table->string('payment_method'); // 'online' or 'delivery'
+            $table->string('transaction_image')->nullable(); // Required only for online
             $table->timestamps();
         });
     }

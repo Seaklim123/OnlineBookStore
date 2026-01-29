@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers\Customer;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+
+// --- ESSENTIAL MODEL IMPORTS ---
+use App\Models\ShoppingCart;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Book;
+
+class CheckoutController extends Controller
+{
+    public function index()
+    {
+    $cart = ShoppingCart::with('items.book')
+        ->where('customer_id', Auth::id())
+        ->where('status', 0)
+        ->first();
+
+    if (!$cart || $cart->items->isEmpty()) {
+        return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+    }
+
+    return Inertia::render('Customer/Checkout', [
+        'cart' => $cart
+    ]);
+    }
+
+        public function placeOrder(Request $request)
+    {
+        $request->validate([
+            'phone_number'      => 'required|string|max:20',
+            'shipping_address'  => 'required|string|max:500',
+            'payment_method'    => 'required|in:online,delivery',
+            'transaction_image' => $request->payment_method === 'online' 
+                ? 'required|image|mimes:jpeg,png,jpg|max:2048' 
+                : 'nullable',
+        ]);
+
+        $cart = ShoppingCart::with('items.book')
+            ->where('customer_id', Auth::id())
+            ->where('status', 0)
+            ->firstOrFail();
+
+        $total = $cart->items->sum(fn($item) => (float)$item->price * $item->quantity);
+
+        $imagePath = null;
+        if ($request->hasFile('transaction_image')) {
+            $imagePath = $request->file('transaction_image')->store('payments', 'public');
+        }
+
+        // Use try-catch inside or around the transaction to handle the "Insufficient stock" message
+        try {
+            return DB::transaction(function () use ($request, $cart, $total, $imagePath) {
+                $order = Order::create([
+                    'customer_id'       => Auth::id(),
+                    'order_date'        => now(),
+                    'order_total'       => $total,
+                    'status'            => 'pending',
+                    'phone_number'      => $request->phone_number,
+                    'shipping_address'  => $request->shipping_address,
+                    'payment_method'    => $request->payment_method,
+                    'transaction_image' => $imagePath,
+                ]);
+
+                foreach ($cart->items as $item) {
+                    if ($item->book->stock < $item->quantity) {
+                        // This message will be caught by the 'catch' block below
+                        throw new \Exception("Insufficient stock for: {$item->book->title}");
+                    }
+
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'book_id'  => $item->book_id,
+                        'quantity' => $item->quantity,
+                        'price'    => $item->price,
+                    ]);
+
+                    $item->book->decrement('stock', $item->quantity);
+                }
+
+                $cart->update(['status' => 1]);
+
+                return redirect()->route('customer.orders.index')->with('success', 'Order placed successfully!');
+            });
+        } catch (\Exception $e) {
+            // This sends the "Insufficient stock" message back as a flash 'error'
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+}
