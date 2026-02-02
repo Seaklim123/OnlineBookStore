@@ -1,72 +1,113 @@
 import React from 'react';
-import AdminLTELayout from '../Layouts/AdminLayout';
+import AdminLTELayout from '../Layouts/AdminLayout'; 
 import { Head } from '@inertiajs/react';
 import Breadcrumb from '@/Components/Breadcrumb';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
+const Dashboard = ({ salesData = [], quickStats = {} }) => { 
+    const title = 'Dashboard';
+    
+    // --- ADDED THIS SECTION TO FIX THE REFERENCE ERROR ---
+    const linksBreadcrumb = [
+        { title: 'Home', url: '/' }, 
+        { title: title, url: '' }
+    ];
 
-const Dashboard = () => {
-    const headWeb = 'Dashboard'
-    const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
+    const stats = [
+        { 
+            label: "Today's Orders", 
+            value: quickStats?.todaySalesCount || 0, 
+            icon: 'fas fa-shopping-cart', 
+            color: 'primary' 
+        },
+        { 
+            label: 'Total Revenue', 
+            value: `$${Number(quickStats?.totalRevenue || 0).toLocaleString()}`, 
+            icon: 'fas fa-dollar-sign', 
+            color: 'success' 
+        },
+        { 
+            label: 'Pending Orders', 
+            value: quickStats?.pendingOrders || 0, 
+            icon: 'fas fa-clock', 
+            color: 'warning' 
+        },
+        { 
+            label: 'Active Users', 
+            value: quickStats?.totalUsers || 0, 
+            icon: 'fas fa-users', 
+            color: 'info' 
+        },
+    ];
+
     return (
-        <AdminLTELayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />}>
-            <Head title={headWeb} />
+        <AdminLTELayout breadcrumb={<Breadcrumb header={title} links={linksBreadcrumb} />}>
+            <Head title={title} />
+
             <section className="content">
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="app-content">
-                            <div className="container-fluid">
-                                <div className="row">
-                                    <div className="col-lg-3 col-6">
-                                        <div className="small-box bg-info">
-                                            <div className="inner">
-                                                <h3>150</h3>
+                <div className="container-fluid">
 
-                                                <p>New Orders</p>
-                                            </div>
-                                            <div className="icon">
-                                                <i className="ion ion-bag"></i>
-                                            </div>
-                                            <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right"></i></a>
+                    {/* STATS CARDS */}
+                    <div className="row">
+                        {stats.map((item, index) => (
+                            <div className="col-lg-3 col-md-6 mb-4" key={index}>
+                                <div className="card border-0 shadow-sm h-100" style={{ borderRadius: '14px' }}>
+                                    <div className="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 className="text-muted mb-1">{item.label}</h6>
+                                            <h3 className="fw-bold mb-0">{item.value}</h3>
+                                        </div>
+                                        <div className={`text-${item.color}`} style={{ fontSize: '24px', background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '10px' }}>
+                                            <i className={item.icon}></i>
                                         </div>
                                     </div>
-                                    <div className="col-lg-3 col-6">
-                                        <div className="small-box bg-success">
-                                            <div className="inner">
-                                                <h3>53<sup style={{ fontSize: '20px' }}>%</sup></h3>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
 
-                                                <p>Bounce Rate</p>
-                                            </div>
-                                            <div className="icon">
-                                                <i className="ion ion-stats-bars"></i>
-                                            </div>
-                                            <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right"></i></a>
-                                        </div>
+                    <div className="row">
+                        {/* AREA CHART */}
+                        <div className="col-md-8">
+                            <div className="card shadow-sm border-0" style={{ borderRadius: '14px' }}>
+                                <div className="card-header bg-white border-0 py-3">
+                                    <h5 className="mb-0 font-weight-bold">Sales Trends (Last 7 Days)</h5>
+                                </div>
+                                <div className="card-body" style={{ height: '350px' }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#007bff" stopOpacity={0.3} />
+                                                    <stop offset="95%" stopColor="#007bff" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} dy={10} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#999', fontSize: 12 }} />
+                                            <Tooltip contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                            <Area type="monotone" dataKey="amount" stroke="#007bff" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* QUICK INFO */}
+                        <div className="col-md-4">
+                            <div className="card shadow-sm border-0" style={{ borderRadius: '14px' }}>
+                                <div className="card-header bg-white border-0 py-3">
+                                    <h5 className="mb-0 font-weight-bold">Inventory Summary</h5>
+                                </div>
+                                <div className="card-body">
+                                    <div className="d-flex justify-content-between mb-3">
+                                        <span className="text-muted">Total Products</span>
+                                        <span className="font-weight-bold">{quickStats?.totalProducts || 0}</span>
                                     </div>
-                                    <div className="col-lg-3 col-6">
-                                        <div className="small-box bg-warning">
-                                            <div className="inner">
-                                                <h3>44</h3>
-
-                                                <p>User Registrations</p>
-                                            </div>
-                                            <div className="icon">
-                                                <i className="ion ion-person-add"></i>
-                                            </div>
-                                            <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right"></i></a>
-                                        </div>
-                                    </div>
-                                    <div className="col-lg-3 col-6">
-                                        <div className="small-box bg-danger">
-                                            <div className="inner">
-                                                <h3>65</h3>
-
-                                                <p>Unique Visitors</p>
-                                            </div>
-                                            <div className="icon">
-                                                <i className="ion ion-pie-graph"></i>
-                                            </div>
-                                            <a href="#" className="small-box-footer">More info <i className="fas fa-arrow-circle-right"></i></a>
-                                        </div>
+                                    <hr />
+                                    <div className="text-center py-2">
+                                        <p className="text-muted small mb-0">Database Status</p>
+                                        <span className="badge badge-success px-3 py-2">Connected & Healthy</span>
                                     </div>
                                 </div>
                             </div>

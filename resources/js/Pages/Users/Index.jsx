@@ -49,7 +49,7 @@ export default function UserPage({ users }) {
     };
     const headWeb = 'User List'
     const linksBreadcrumb = [{ title: 'Home', url: '/' }, { title: headWeb, url: '' }];
-
+    
     return (
         <AdminLayout breadcrumb={<Breadcrumb header={headWeb} links={linksBreadcrumb} />} >
             <Head title={headWeb} />
@@ -84,6 +84,7 @@ export default function UserPage({ users }) {
                                             <th>Action</th>
                                         </tr>
                                     </thead>
+                                   
                                     <tbody>
                                         {datasList.length > 0 ?
                                             datasList.map((item, k) => (
@@ -91,7 +92,17 @@ export default function UserPage({ users }) {
                                                     <td>{item?.id}</td>
                                                     <td>{item?.name}</td>
                                                     <td>{item?.email}</td>
-                                                    <td>{item?.roles[0]?.name}</td>
+                                                    <td>
+                                                        {item?.roles.length > 0 ? (
+                                                            item.roles.map(role => (
+                                                                <span key={role.id} className="badge badge-info mr-1">
+                                                                    {role.name}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="badge badge-secondary">No Role</span>
+                                                        )}
+                                                    </td>
                                                     <td>{moment(item?.created_at).format("DD/MM/YYYY")}</td>
                                                     <td width={'170px'}>
                                                         {can['user-edit'] && (

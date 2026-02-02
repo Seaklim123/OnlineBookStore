@@ -8,6 +8,8 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\BookController as CustomerBookController;
@@ -30,15 +32,18 @@ Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->middleware('role:admin')->name('dashboard');
-});
+// Route::middleware(['auth'])->group(function () {
+//     Route::get('/dashboard', [DashboardController::class, 'index'])
+//         ->middleware('role:admin')
+//         ->name('dashboard');
+// });
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // This MUST point to [DashboardController::class, 'index']
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/download', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
+});
 
 Route::get('/about', function () {
     return Inertia::render('Dashboard');

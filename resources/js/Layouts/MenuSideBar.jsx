@@ -138,6 +138,23 @@ export default function MenuSideBar({ }) {
                                 </Link>
                             </li>
 
+                            <li className="nav-item px-2 mb-1"> {/* Added padding and margin for better alignment */}
+                                <Link
+                                    href={route('reports.index')}
+                                    className={`flex items-center space-x-2 px-3 py-2 rounded-md transition duration-200 ${
+                                        route().current('reports.index')
+                                            ? 'bg-blue-600 text-white active'
+                                            : 'text-gray-300 hover:bg-gray-800'
+                                    }`}
+                                >
+                                    {/* Reduced icon size to text-base and margin */}
+                                    <i className="fa-solid fa-chart-line text-base"></i>
+                                    
+                                    {/* Reduced font size to text-sm for a cleaner sidebar look */}
+                                    <span className="text-sm font-medium">Report</span>
+                                </Link>
+                            </li>
+
                             {can['role-list' || 'user-list'] && (
                                 <li className="nav-header">AUTHENTICATION</li>
                             )}
