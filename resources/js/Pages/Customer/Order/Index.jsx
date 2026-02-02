@@ -24,7 +24,7 @@ export default function Index({ orders, auth }) {
                             <div key={order.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center">
                                 <div>
                                     <p className="text-sm text-gray-500">Order #{order.id}</p>
-                                    <p className="font-semibold text-lg">${Number(order.order_total).toFixed(2)}</p>
+                                    <p className="font-semibold text-lg">${Number(order.order_total + 2).toFixed(2)}</p>
                                     <p className="text-xs text-gray-400">{moment(order.order_date).format('MMMM DD, YYYY')}</p>
                                 </div>
                                 <div className="mt-4 md:mt-0 flex items-center space-x-4">
@@ -108,7 +108,7 @@ export default function Index({ orders, auth }) {
                         </div>
                         <div className="text-right">
                             <p className="text-xs text-gray-400 uppercase">Grand Total</p>
-                            <p className="text-2xl font-bold text-blue-600">${Number(selectedOrder.order_total).toFixed(2)}</p>
+                            <p className="text-2xl font-bold text-blue-600">${Number(selectedOrder.order_total + 2).toFixed(2)}</p>
                         </div>
                     </div>
 

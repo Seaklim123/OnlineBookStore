@@ -6,7 +6,13 @@ import $ from 'jquery';
 import { Link, usePage } from '@inertiajs/react';
 
 const AdminLayout = ({breadcrumb, children }) => {
-    const user = usePage().props.auth.user;
+    
+    const { auth } = usePage().props; 
+    
+    // Now you can safely access these:
+    const pendingOrdersCount = auth.pendingOrdersCount;
+    const user = auth.user;
+
     useEffect(() => {
         // Ensure dropdowns, tooltips, and modals work
         $('[data-toggle="dropdown"]').dropdown();
@@ -26,6 +32,21 @@ const AdminLayout = ({breadcrumb, children }) => {
                 {/* <!-- Right navbar links --> */}
                 <ul className="navbar-nav ml-auto">
                     {/* Dropdown */}
+
+                    <li className="nav-item">
+                        <Link 
+                            href={route('orders.index', { status: 'pending' })} // Adds ?status=pending to URL
+                            className="nav-link"
+                        >
+                            <i className="fas fa-shopping-cart"></i> 
+                            {pendingOrdersCount > 0 && (
+                                <span className="badge badge-danger navbar-badge">
+                                    {pendingOrdersCount}
+                                </span>
+                            )}
+                        </Link>
+                    </li>
+
                     <li className="nav-item dropdown">
                         <a className="nav-link" data-toggle="dropdown" href="#">
                             <i className="far fa-user"></i>
@@ -43,6 +64,7 @@ const AdminLayout = ({breadcrumb, children }) => {
                             </Link>
                         </div>
                     </li>
+
                 </ul>
             </nav>
 

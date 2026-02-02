@@ -47,6 +47,8 @@ class HandleInertiaRequests extends Middleware
                     $query->where('customer_id', $request->user()->id)->where('status', 0);
                 })->sum('quantity') 
                 : 0,
+            
+                'pendingOrdersCount' => $user ? \App\Models\Order::where('status', 'pending')->count() : 0,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

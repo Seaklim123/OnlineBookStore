@@ -10,14 +10,19 @@ use Inertia\Inertia;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-         $orders = Order::with(['items.book', 'customer'])
+        $orders = Order::with(['items.book', 'customer'])
+        ->when($request->status, function ($query, $status) {
+            return $query->where('status', $status);
+        })
         ->latest()
-        ->paginate(10); 
+        ->paginate(10)
+        ->withQueryString(); // Keep the ?status=pending during pagination
 
         return Inertia::render('Orders/Index', [
-            'ordersData' => $orders
+            'ordersData' => $orders,
+            'filters' => $request->only(['status']) // Pass current filter back to React
         ]);
     }
 
