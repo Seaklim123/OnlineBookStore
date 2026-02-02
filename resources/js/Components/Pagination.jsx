@@ -1,28 +1,33 @@
-import React from 'react';
 import { Link } from '@inertiajs/react';
-export default function Pagination({ links }) {    
+
+export default function Pagination({ links }) {
+    if (!links || links.length <= 1) return null;
+
     return (
-        links?.length > 10 ? 
-            <ul className="pagination pagination-sm m-0 float-right">
-                {links?.map((link, key) => (
-                    link?.url === null ?
-                        (
-                            <li className="page-item" key={key}>
-                                <Link className="page-link" href={`#`} key={key}>
-                                    {link?.label.replace('&laquo;', '<').replace('&raquo;', '>')}
-                                </Link>
-                            </li>
-                        ) :
-                        (
-                            <li className={`page-item ${link?.active && 'active'}`} key={key}>
-                                <Link className={`page-link`} href={ link?.url } key={key}>
-                                    {link?.label.replace('&raquo;', '>').replace('&laquo;', '<')}
-                                </Link>
-                            </li>
-                        )
-                ))}
-            </ul>
-        : 
-        <></>
-    )
+        <ul className="pagination pagination-sm m-0 float-right">
+            {links.map((link, key) => (
+                <li
+                    key={key}
+                    className={`page-item ${link.active ? 'active' : ''} ${!link.url ? 'disabled' : ''}`}
+                >
+                    {link.url ? (
+                        <Link
+                            href={link.url}
+                            className="page-link"
+                            dangerouslySetInnerHTML={{
+                                __html: link.label.replace('&laquo;', '<').replace('&raquo;', '>')
+                            }}
+                        />
+                    ) : (
+                        <span
+                            className="page-link"
+                            dangerouslySetInnerHTML={{
+                                __html: link.label.replace('&laquo;', '<').replace('&raquo;', '>')
+                            }}
+                        />
+                    )}
+                </li>
+            ))}
+        </ul>
+    );
 }

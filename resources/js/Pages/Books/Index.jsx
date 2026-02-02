@@ -8,7 +8,7 @@ import moment from 'moment';
 import { useState } from 'react';
 
 export default function BooksPage({ bookData }) {
-    const booksList = bookData?.data;
+    const booksList = bookData?.data || [];
 
     // Delete modal state
     const [confirmingBookDeletion, setConfirmingBookDeletion] = useState(false);
@@ -199,8 +199,10 @@ export default function BooksPage({ bookData }) {
                                 </Modal>
                             </div>
 
-                            <div className="card-footer clearfix">
-                                <Pagination links={bookData.links} />
+                            <div className="card-footer">
+                                <div className="d-flex justify-content-end">
+                                    <Pagination links={bookData.links} />
+                                </div>
                             </div>
                         </div>
                     </div>

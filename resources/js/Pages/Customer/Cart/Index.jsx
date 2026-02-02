@@ -2,151 +2,139 @@ import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/FooterGuest';
+import Swal from 'sweetalert2';
 
 export default function Cart({ cart, auth }) {
-    // Sync local state with server data
     const [cartItems, setCartItems] = useState(cart?.items || []);
 
     useEffect(() => {
         setCartItems(cart?.items || []);
     }, [cart]);
 
-    // Update quantity in DB
     const handleQuantityChange = (cartItemId, newQty) => {
         if (newQty < 1) return;
-
-        // Optimistic Update: Change UI immediately
         setCartItems(prev =>
             prev.map(item => item.id === cartItemId ? { ...item, quantity: newQty } : item)
         );
+        router.put(route('cart.update', cartItemId), { quantity: newQty }, { preserveScroll: true });
+    };
 
-        router.put(route('cart.update', cartItemId), { 
-            quantity: newQty 
-        }, {
-            preserveScroll: true 
+    const handleRemoveItem = (cartItemId) => {
+        Swal.fire({
+            title: 'Remove Book?',
+            text: "Do you want to remove this book from your cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#bda081',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('cart.remove', cartItemId), {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        setCartItems(prev => prev.filter(item => item.id !== cartItemId));
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Item removed', showConfirmButton: false, timer: 1500 });
+                    }
+                });
+            }
         });
     };
 
-    // Remove item from DB
-    const handleRemoveItem = (cartItemId) => {
-        if (confirm('Are you sure you want to remove this book?')) {
-            router.delete(route('cart.remove', cartItemId), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setCartItems(prev => prev.filter(item => item.id !== cartItemId));
-                }
-            });
-        }
-    };
-
-    // Calculate total price
-    const totalPrice = cartItems.reduce(
-        (sum, item) => sum + (parseFloat(item.book.price) * item.quantity),
-        0
-    );
+    const totalPrice = cartItems.reduce((sum, item) => sum + (parseFloat(item.book.price) * item.quantity), 0);
 
     return (
-        <>
-            <Head title="My Cart" />
+        <div className="min-h-screen bg-[#f5eadf] flex flex-col">
+            <Head title="My Shopping Cart" />
             <Navbar auth={auth} />
 
-            <div className="pt-16 min-h-screen flex flex-col bg-gray-50">
-                <div className="container mx-auto my-10 p-6 bg-white shadow-md rounded-lg flex-grow">
-                    <h2 className="text-3xl font-bold mb-8 text-gray-800">Shopping Cart</h2>
+            <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
+                <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Shopping Cart</h1>
 
-                    {cartItems.length === 0 ? (
-                        <div className="text-center py-20">
-                            <p className="text-xl text-gray-500 mb-4">Your cart is empty.</p>
-                            <button 
-                                onClick={() => router.visit('/')}
-                                className="text-blue-600 hover:underline"
-                            >
-                                Continue Shopping
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full table-auto">
-                                <thead className="border-b">
-                                    <tr className="text-left text-gray-600 uppercase text-sm">
-                                        <th className="pb-4">Book</th>
-                                        <th className="pb-4">Price</th>
-                                        <th className="pb-4 text-center">Quantity</th>
-                                        <th className="pb-4">Subtotal</th>
-                                        <th className="pb-4 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {cartItems.map((item) => (
-                                        <tr key={item.id} className="hover:bg-gray-50 transition">
-                                            <td className="py-6 flex items-center gap-4">
-                                                <img
-                                                    src={item.book.cover_image ? `/storage/${item.book.cover_image}` : '/images/no-book.png'}
-                                                    alt={item.book.title}
-                                                    className="w-16 h-24 object-cover rounded shadow-sm"
-                                                />
-                                                <div>
-                                                    <p className="font-bold text-gray-800">{item.book.title}</p>
-                                                    <p className="text-sm text-gray-500">{item.book.author}</p>
-                                                </div>
-                                            </td>
-                                            <td className="py-6 text-gray-700">${parseFloat(item.book.price).toFixed(2)}</td>
-                                            <td className="py-6">
-                                                <div className="flex justify-center items-center gap-3">
-                                                    <button
-                                                        className="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100"
-                                                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                                    >
-                                                        -
-                                                    </button>
-                                                    <span className="font-semibold w-6 text-center">{item.quantity}</span>
-                                                    <button
-                                                        className="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100"
-                                                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="py-6 font-semibold text-gray-900">
-                                                ${(parseFloat(item.book.price) * item.quantity).toFixed(2)}
-                                            </td>
-                                            <td className="py-6 text-right">
-                                                <button
-                                                    className="text-red-500 hover:text-red-700 font-medium transition"
-                                                    onClick={() => handleRemoveItem(item.id)}
-                                                >
-                                                    Remove
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            <div className="flex flex-col items-end mt-10 border-t pt-6">
-                                <div className="text-gray-600 mb-2">Total Amount:</div>
-                                <div className="text-3xl font-bold text-gray-900 mb-6">${totalPrice.toFixed(2)}</div>
-                                <div className="flex gap-4">
-                                    <button
-                                        className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
-                                        onClick={() => router.visit('/customer/books')}
-                                    >
-                                        Back to Store
+                {cartItems.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-sm p-12 text-center border border-gray-100">
+                        <div className="text-6xl mb-4">🛒</div>
+                        <p className="text-xl text-gray-500 mb-6">Your cart feels a bit light.</p>
+                        <button onClick={() => router.visit('/customer/books')} className="bg-[#bda081] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#a68b6d] transition shadow-lg">
+                            Go to Store
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Items List */}
+                        <div className="lg:col-span-2 space-y-4">
+                            {cartItems.map((item) => (
+                                <div key={item.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center group relative">
+                                    <img
+                                        src={item.book.cover_image ? `/storage/${item.book.cover_image}` : '/images/no-book.png'}
+                                        className="w-20 h-28 md:w-24 md:h-32 object-cover rounded-xl shadow-sm flex-shrink-0"
+                                        alt={item.book.title}
+                                    />
+                                    <div className="flex-grow">
+                                        <h3 className="font-bold text-gray-900 text-lg line-clamp-1">{item.book.title}</h3>
+                                        <p className="text-sm text-gray-500 mb-3">{item.book.author}</p>
+                                        
+                                        <div className="flex items-center justify-between mt-auto">
+                                            {/* Quantity Controls */}
+                                            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                                                <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md transition font-bold text-gray-600">-</button>
+                                                <span className="w-8 text-center font-bold text-sm text-gray-800">{item.quantity}</span>
+                                                <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md transition font-bold text-gray-600">+</button>
+                                            </div>
+                                            <p className="font-bold text-[#bda081] text-lg">${(item.book.price * item.quantity).toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                    {/* Delete Button */}
+                                    <button onClick={() => handleRemoveItem(item.id)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition">
+                                        <svg xmlns="http://www.w3.org" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
                                     </button>
-                                    <button
-                                        className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg transition"
-                                        onClick={() => router.visit('/checkout')}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Order Summary Summary Card */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
+                                <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                                <div className="space-y-4 mb-6">
+                                    <div className="flex justify-between text-gray-600 text-sm">
+                                        <span>Subtotal</span>
+                                        <span>${totalPrice.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-gray-600 text-sm">
+                                        <span>Shipping</span>
+                                        <span className="text-gray-600 font-medium">$2.00</span>
+                                    </div>
+                                    <div className="border-t pt-4 flex justify-between items-center font-bold text-xl text-gray-900">
+                                        <span>Total</span>
+                                        <span className="text-[#bda081]">${(totalPrice + 2.00).toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                {/* Buttons Container */}
+                                <div className="flex gap-3 mt-6">
+                                    <button 
+                                        onClick={() => router.visit('/customer/books')} 
+                                        className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-lg text-xs font-semibold hover:bg-gray-200 transition text-center"
                                     >
-                                        Proceed to Checkout
+                                        Shop More
+                                    </button>
+                                    <button 
+                                        onClick={() => router.visit('/checkout')} 
+                                        className="flex-1 bg-[#bda081] text-white py-2.5 rounded-lg text-xs font-bold hover:bg-[#a68b6d] transition shadow-md text-center"
+                                    >
+                                        Order Now
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    )}
-                </div>
-                <Footer />
-            </div>
-        </>
+
+                    </div>
+                )}
+            </main>
+            <Footer />
+        </div>
     );
 }

@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.hover-shadow:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; 
+}
+
+.transition { 
+    transition: all 0.3s ease; 
+}
+
+.bg-soft-primary { 
+    background-color: #e7f1ff; 
+}
+
+.object-fit-cover { 
+    object-fit: cover; 
+}
+
+/* Responsive book heights for all pages */
+@media (max-width: 576px) {
+    .card-img-top { 
+        height: 180px !important; 
+    }
+}

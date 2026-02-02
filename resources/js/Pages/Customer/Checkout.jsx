@@ -1,7 +1,46 @@
-import React, { useEffect } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import React, { useEffect, useMemo } from 'react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar'; 
 import Footer from '@/Components/FooterGuest';
+import Swal from 'sweetalert2';
+
+
+Swal.fire({
+    title: 'Out of Stock', // Cleaner title
+    text: 'Insufficient stock for: Positive thinking',
+    icon: 'error', // Use a visually appealing icon
+    showClass: {
+        popup: 'animate__animated animate__fadeInDown' // Add subtle animation
+    },
+    hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+    },
+    confirmButtonText: 'Browse Books',
+    confirmButtonColor: '#bd874e', // Your brand color
+    // Add custom CSS properties directly or via a class
+    customClass: {
+        popup: 'shadow-2xl rounded-xl',
+        confirmButton: 'px-6 py-2'
+    },
+    });
+
+const InputField = React.memo(({ label, id, value, onChange, error, type = 'text', placeholder, pattern }) => (
+    <div>
+        <label htmlFor={id} className="block text-sm font-semibold text-stone-700 mb-2">{label}</label>
+        <input
+            type={type}
+            id={id}
+            placeholder={placeholder}
+            pattern={pattern}
+            className={`w-full border-0 bg-white rounded-xl p-3 shadow-sm focus:ring-2 focus:ring-[#bd874e] transition ${error ? 'ring-2 ring-red-500' : ''}`}
+            value={value}
+            onChange={onChange}
+            required // Basic HTML required validation
+        />
+        {error && <p className="text-red-500 text-xs mt-1 font-medium">{error}</p>}
+    </div>
+));
+
 
 export default function Checkout({ auth, cart }) {
     const { flash } = usePage().props; 
@@ -13,121 +52,141 @@ export default function Checkout({ auth, cart }) {
     });
 
     useEffect(() => {
-        if (flash && flash.error) {
-            alert(flash.error);
-        }
+        if (flash?.error) alert(flash.error);
     }, [flash]);
+
+    const shippingFee = 2.00;
+    const subtotal = cart.items.reduce((t, i) => t + (parseFloat(i.price) * i.quantity), 0);
+    const totalAmount = subtotal + shippingFee;
 
     const submit = (e) => {
         e.preventDefault();
-        // Inertia handles FormData conversion automatically when files are present
-        post(route('checkout.placeOrder'), {
-            forceFormData: true,
-        });
+        // Inertia handles validation via your Laravel backend logic
+        post(route('checkout.placeOrder'), { forceFormData: true });
     };
 
-    // Calculate Total locally for display
-    const totalAmount = cart.items.reduce(
-        (t, i) => t + (parseFloat(i.price) * i.quantity), 0
-    );
 
-        return (
-        <> {/* Added Fragment Start */}
+    return (
+        <div className="min-h-screen bg-[#f5eadf] text-stone-800">
             <Head title="Checkout" />
             <Navbar auth={auth} />
 
-            <div className="pt-20 min-h-screen bg-gray-50 pb-10"> {/* Added padding-top for Navbar spacing */}
-                <div className="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-xl">
-                    <h1 className="text-3xl font-extrabold mb-8 text-gray-800">Finalize Your Order</h1>
-
-                    {/* 1. Order Summary */}
-                    <div className="bg-gray-50 p-6 rounded-lg mb-8 border border-gray-100">
-                        <h3 className="text-sm font-bold text-gray-500 uppercase mb-4 tracking-wider">Your Items</h3>
-                        {cart.items.map(item => (
-                            <div key={item.id} className="flex justify-between items-center mb-3">
-                                <span className="text-gray-700">{item.book.title} <span className="text-gray-400">× {item.quantity}</span></span>
-                                <span className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+            <div className="pt-28 pb-20 container mx-auto px-6">
+                <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    
+                    <div className="lg:col-span-2">
+                        <form onSubmit={submit} className="bg-white p-8 rounded-xl shadow-lg border border-white space-y-8">
+                            
+                            <div>
+                                <h2 className="text-xl font-bold mb-6 text-stone-800 border-b pb-3">Billing & Shipping</h2>
+                                <div className="space-y-4">
+                                    <InputField
+                                        label="Phone Number"
+                                        id="phone_number"
+                                        type="tel"
+                                        pattern="[0-9]*"
+                                        placeholder="e.g., 012 345 678"
+                                        value={data.phone_number}
+                                        onChange={e => setData('phone_number', e.target.value)}
+                                        error={errors.phone_number}
+                                    />
+                                    <InputField
+                                        label="Detailed Shipping Address"
+                                        id="shipping_address"
+                                        placeholder="Street Name, House No, City..."
+                                        value={data.shipping_address}
+                                        onChange={e => setData('shipping_address', e.target.value)}
+                                        error={errors.shipping_address}
+                                    />
+                                </div>
                             </div>
-                        ))}
-                        <div className="border-t mt-4 pt-4 flex justify-between items-center">
-                            <span className="text-xl font-bold text-gray-800">Total:</span>
-                            <span className="text-2xl font-black text-blue-600">${totalAmount.toFixed(2)}</span>
+
+                            <div>
+                                <h2 className="text-xl font-bold mb-6 text-stone-800 border-b pb-3">Payment Method</h2>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {['delivery', 'online'].map((method) => (
+                                            <button
+                                                key={method}
+                                                type="button"
+                                                onClick={() => setData('payment_method', method)}
+                                                // Updated button color from your code
+                                                className={`py-3 rounded-lg text-sm font-semibold transition-all border ${data.payment_method === method ? 'bg-[#375ed3] text-white border-stone-900' : 'bg-stone-50 text-stone-500 border-stone-100 hover:border-stone-300'}`}
+                                            >
+                                                {method === 'delivery' ? '🚚 Cash on Delivery' : '💳 Online Payment'}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {data.payment_method === 'online' && (
+                                        <div className="bg-stone-50 p-6 rounded-lg border border-dashed border-stone-200 text-center">
+                                            <p className="font-semibold text-stone-700 mb-3">Scan QR Code</p>
+                                            <img src="/images/image.png" alt="QR" className="w-32 mx-auto mb-4 rounded-md shadow-sm" />
+                                            <input
+                                                type="file"
+                                                className="w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#bd874e] file:text-white"
+                                                onChange={e => setData('transaction_image', e.target.files[0])}
+                                            />
+                                            {errors.transaction_image && <p className="text-red-500 text-xs mt-1 font-medium">{errors.transaction_image}</p>}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="bg-[#bda081] text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-[#a68b6d] transition disabled:opacity-50"
+                                >
+                                    {processing ? 'Processing...' : 'Continue to checkout'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="lg:col-span-1">
+                        <div className="bg-white p-8 rounded-xl shadow-lg border border-white sticky top-28">
+                        <h2 className="text-xl font-bold mb-6 text-stone-800 flex items-center justify-between">
+                            Cart
+                            <span className="text-sm bg-stone-100 px-3 py-1 rounded-full text-stone-600">
+                                {cart.items.length}
+                            </span>
+                        </h2>
+                        
+                        <div className="space-y-4 mb-6">
+                            {/* Map only the dynamic items */}
+                            {cart.items.map(item => (
+                                <div key={item.id} className="flex justify-between items-center text-sm">
+                                    <span className="text-stone-700">
+                                        {item.book.title} <span className="text-stone-400">×{item.quantity}</span>
+                                    </span>
+                                    <span className="font-semibold text-stone-900">
+                                        ${(item.price * item.quantity).toFixed(2)}
+                                    </span>
+                                </div>
+                            ))}
+
+                            {/* Static Shipping Line (Remove key={item.id}) */}
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-stone-700">Shipping</span>
+                                <span className="font-semibold text-stone-900">$2.00</span>
+                            </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-stone-200">
+                            <div className="flex justify-between text-base font-bold text-stone-800">
+                                <span>Total Amount:</span>
+                                <span className="text-[#bd874e]">${totalAmount.toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* 2. Checkout Form */}
-                    <form onSubmit={submit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Number</label>
-                            <input
-                                type="text"
-                                placeholder="e.g., 012-345-678"
-                                className={`w-full border rounded-lg p-3 ${errors.phone_number ? 'border-red-500' : 'border-gray-200'}`}
-                                value={data.phone_number}
-                                onChange={e => setData('phone_number', e.target.value)}
-                            />
-                            {errors.phone_number && <p className="text-red-500 text-xs mt-1">{errors.phone_number}</p>}
-                        </div>
+                    </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1">Detailed Delivery Address</label>
-                            <textarea
-                                placeholder="Street Name, House No, City..."
-                                rows="3"
-                                className={`w-full border rounded-lg p-3 ${errors.shipping_address ? 'border-red-500' : 'border-gray-200'}`}
-                                value={data.shipping_address}
-                                onChange={e => setData('shipping_address', e.target.value)}
-                            />
-                            {errors.shipping_address && <p className="text-red-500 text-xs mt-1">{errors.shipping_address}</p>}
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-3">How would you like to pay?</label>
-                            <div className="grid grid-cols-2 gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setData('payment_method', 'delivery')}
-                                    className={`p-4 border rounded-xl text-center font-bold ${data.payment_method === 'delivery' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    🚚 Pay on Delivery
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setData('payment_method', 'online')}
-                                    className={`p-4 border rounded-xl text-center font-bold ${data.payment_method === 'online' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                                >
-                                    💳 Online Payment
-                                </button>
-                            </div>
-                        </div>
-
-                        {data.payment_method === 'online' && (
-                            <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl text-center">
-                                <p className="font-black text-blue-900 mb-3">Scan to Pay Now</p>
-                                <img src="/images/qr-code.png" alt="Payment QR" className="w-44 h-50 mx-auto mb-6 shadow-md rounded-lg" />
-                                <div className="text-left">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Upload Transaction Screenshot</label>
-                                    <input
-                                        type="file"
-                                        className="w-full text-sm"
-                                        onChange={e => setData('transaction_image', e.target.files[0])}
-                                    />
-                                    {errors.transaction_image && <p className="text-red-500 text-xs mt-1 font-bold">{errors.transaction_image}</p>}
-                                </div>
-                            </div>
-                        )}
-
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-green-700 transition disabled:opacity-50 mt-4"
-                        >
-                            {processing ? 'Submitting Order...' : 'Confirm & Place Order'}
-                        </button>
-                    </form>
                 </div>
             </div>
             <Footer />
-        </> // Added Fragment End
+        </div>
     );
 }

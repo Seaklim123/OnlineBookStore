@@ -62,7 +62,9 @@ export default function OrderShow({ order }) {
                             <div className="card-header">
                                 <h3 className="card-title font-weight-bold">Ordered Books</h3>
                                 <div className="card-tools">
-                                    <span className="badge badge-primary p-2">Total: ${Number(order.order_total).toFixed(2)}</span>
+                                    <span className="badge badge-primary p-2">
+                                        Total: ${Number(order.order_total + 2).toFixed(2)}
+                                    </span>
                                 </div>
                             </div>
                             <div className="card-body table-responsive p-0">
@@ -88,10 +90,25 @@ export default function OrderShow({ order }) {
                                         ))}
                                     </tbody>
                                     <tfoot>
+                                        {/* Item Subtotal */}
                                         <tr>
-                                            <th colSpan="3" className="text-right">Grand Total:</th>
-                                            <th className="text-right text-primary text-lg">${Number(order.order_total).toFixed(2)}</th>
+                                            <th colSpan="3" className="text-right text-muted">Items Subtotal:</th>
+                                            <th className="text-right text-muted">
+                                                ${(Number(order.order_total)).toFixed(2)}
+                                            </th>
                                         </tr>
+                                        {/* Shipping Fee */}
+                                        <tr>
+                                            <th colSpan="3" className="text-right text-muted border-top-0">Shipping Fee:</th>
+                                            <th className="text-right text-muted border-top-0">$2.00</th>
+                                        </tr>
+                                            {/* Grand Total */}
+                                            <tr className="bg-light">
+                                                <th colSpan="3" className="text-right text-lg">Grand Total:</th>
+                                                <th className="text-right text-primary text-xl">
+                                                    ${Number(order.order_total + 2).toFixed(2)}
+                                                </th>
+                                            </tr>
                                     </tfoot>
                                 </table>
                             </div>

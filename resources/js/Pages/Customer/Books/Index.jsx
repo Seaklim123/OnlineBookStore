@@ -1,155 +1,171 @@
 import { useEffect, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/FooterGuest';
-import { router } from '@inertiajs/react';
+import Swal from 'sweetalert2';
 
 export default function Index({ books, auth, categories }) {
     const [search, setSearch] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
     const [filteredBooks, setFilteredBooks] = useState(books.data || []);
 
-    // Filter books whenever search or category changes
     useEffect(() => {
         let filtered = books.data;
-
         if (search.trim() !== '') {
             filtered = filtered.filter(book =>
                 book.title.toLowerCase().includes(search.toLowerCase())
             );
         }
-
         if (filterCategory) {
             filtered = filtered.filter(
                 book => book.category && book.category.id === parseInt(filterCategory)
             );
         }
-
         setFilteredBooks(filtered);
     }, [search, filterCategory, books.data]);
 
-    const handleViewBook = (bookId) => {
-    router.get(`/customer/books/${bookId}`);
-    };
+    const handleViewBook = (bookId) => router.get(`/customer/books/${bookId}`);
 
     const handleAddToCart = (bookId, quantity = 1) => {
     if (!auth?.user) {
-        alert('Please login or register to add books to your cart.');
-        router.visit('/login');
+        Swal.fire({
+            title: 'Please Login',
+            text: 'You need to login or register to add books to your cart.',
+            icon: 'info',
+            confirmButtonColor: '#bda081',
+        }).then(() => {
+            router.visit('/login');
+        });
         return;
     }
-
-    // Pass bookId as the second argument to 'route'
-    // This generates: /cart/add/2
-    router.post(route('cart.add', { book: bookId }), { 
+        router.post(route('cart.add', { book: bookId }), { 
         quantity: quantity 
     }, {
         onSuccess: () => {
-            alert('Book added to cart!');
+            // Success Toast Confirmation
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Book added to cart!',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });
         },
         onError: (errors) => {
             console.error(errors);
-            alert('Failed to add book to cart.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Failed to add book to cart.',
+                confirmButtonColor: '#bda081',
+            });
         }
     });
     };
 
-
-
+    const isBestSeller = (book) => book.times_sold > 50 || Math.random() > 0.8; 
 
     return (
-        <>
-            <Head title="Books" />
+        <div className="min-h-screen flex flex-col bg-[#f5eadf]">
+            <Head title="Books Store" />
             <Navbar auth={auth} />
 
-            <div className="pt-16 min-h-screen flex flex-col">
-                {/* Main content */}
-                <div className="container my-5 flex-grow">
-                    {/* Filters */}
-                    <div className="row mb-4">
-                        <div className="col-md-6 mb-2">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search by title..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+            <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+                
+                {/* RESTORED FILTERS SECTION */}
+                <div className="flex flex-col md:flex-row gap-4 mb-10">
+                    <div className="relative flex-grow shadow-sm rounded-xl overflow-hidden">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span className="text-gray-400 text-sm">🔍</span>
                         </div>
-                        <div className="col-md-6 mb-2">
-                            <select
-                                className="form-select"
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(e.target.value)}
-                            >
-                                <option value="">All Categories</option>
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <input
+                            type="text"
+                            className="block w-full pl-11 pr-4 py-3 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-[#bda081] transition-all bg-white text-sm"
+                            placeholder="Search your favorite books..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
                     </div>
-
-                    {/* Book Cards */}
-                    <div className="row">
-                        {filteredBooks.length > 0 ? (
-                            filteredBooks.map(book => (
-                                <div className="col-md-2 mb-4" key={book.id}>
-                                    <div className="card border-0 h-100">
-                                        <img
-                                            src={book.cover_image ? `/storage/${book.cover_image}` : '/images/no-book.png'}
-                                            className="card-img-top"
-                                            alt={book.title}
-                                        />
-                                        <div className="card-body p-2 d-flex flex-column justify-content-between">
-                                            <div>
-                                                <h6 className="mb-1 text-truncate">{book.title}</h6>
-                                                <small className="text-muted">{book.author}</small>
-                                                <div>
-                                                    <small className="text-primary">
-                                                        {book.category?.name || 'No category'}
-                                                    </small>
-                                                </div>
-                                                <div>
-                                                    <small className="text-success">
-                                                        {book.price ? `${book.price} $` : 'Price not available'}
-                                                    </small>
-                                                </div>
-                                            </div>
-
-                                            {/* Buttons */}
-                                            <div className="mt-2 d-flex flex-column gap-2">
-                                                <button
-                                                    className="btn btn-outline-primary btn-sm"
-                                                    onClick={() => handleViewBook(book.id)}
-                                                >
-                                                    View
-                                                </button>
-
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => handleAddToCart(book.id)}
-                                                >
-                                                    <i className="fas fa-cart-plus mr-1"></i>
-                                                    Add to Cart
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="col-12 text-center py-5">
-                                <p>No books found.</p>
-                            </div>
-                        )}
+                    
+                    <div className="md:w-64 shadow-sm rounded-xl overflow-hidden">
+                        <select
+                            className="block w-full px-4 py-3 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-[#bda081] transition-all bg-white text-sm cursor-pointer"
+                            value={filterCategory}
+                            onChange={(e) => setFilterCategory(e.target.value)}
+                        >
+                            <option value="">All Categories</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
-                <Footer />
-            </div>
-        </>
+                {/* GRID SECTION */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                    {filteredBooks.length > 0 ? (
+                        filteredBooks.map(book => (
+                            <div key={book.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full border border-gray-100">
+                                {/* Aspect Ratio Box (2:3) */}
+                                <div 
+                                    className="relative aspect-[2/3] overflow-hidden bg-gray-200 cursor-pointer"
+                                    onClick={() => handleViewBook(book.id)}
+                                >
+                                    <img
+                                        src={book.cover_image ? `/storage/${book.cover_image}` : '/images/no-book.png'}
+                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                        alt={book.title}
+                                    />
+                                    
+                                    <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg shadow-lg">
+                                        <span className="text-sm font-bold text-gray-900">${book.price}</span>
+                                    </div>
+
+                                    {isBestSeller(book) && (
+                                        <div className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg rotate-[-5deg]">
+                                            ⭐ BEST SELLER
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="p-3 flex flex-col flex-grow">
+                                    <div className="flex-grow">
+                                        <h3 className="text-sm font-bold text-gray-900 line-clamp-1 mb-1 group-hover:text-[#bda081] transition-colors">
+                                            {book.title}
+                                        </h3>
+                                        <p className="text-[11px] text-gray-500 mb-2 truncate">{book.author}</p>
+                                        <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded-md mb-3">
+                                            {book.category?.name || 'General'}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-2 mt-auto">
+                                        <button
+                                            onClick={() => handleAddToCart(book.id)}
+                                            className="w-full bg-[#bda081] hover:bg-[#a68b6d] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        >
+                                            <span>🛒 Add to Cart</span>
+                                        </button>
+                                        <button
+                                            onClick={() => handleViewBook(book.id)}
+                                            className="w-full text-white bg-[#bda081] hover:bg-[#a68b6d] text-[11px] font-medium py-1 rounded-xl transition-colors"
+                                        >
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-20 bg-white rounded-3xl shadow-inner">
+                            <p className="text-gray-400 text-lg">No books found matching your search. 📚</p>
+                        </div>
+                    )}
+                </div>
+            </main>
+            <Footer />
+        </div>
     );
 }

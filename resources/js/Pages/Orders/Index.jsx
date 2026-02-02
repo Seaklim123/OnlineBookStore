@@ -1,7 +1,7 @@
 import Breadcrumb from '@/Components/Breadcrumb';
 import Pagination from '@/Components/Pagination';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link, useForm } from '@inertiajs/react'; // Added useForm
+import { Head, Link, useForm, router } from '@inertiajs/react'; // Added useForm
 import Modal from '@/Components/Modal';
 import moment from 'moment';
 import { useState } from 'react'; // Added useState
@@ -23,27 +23,32 @@ export default function OrdersPage({ ordersData }) {
         { title: headWeb, url: '' },
     ];
 
-    // 2. Handle Select Change
-    const handleStatusChange = (order, newStatus) => {
-        // 1. Instant UI update (Optional: requires local state for ordersList)
-        if (newStatus === 'cancelled') {
-            setSelectedOrder(order);
-            setData({ status: 'cancelled', cancel_reason: '' });
-            setShowCancelModal(true);
-        } else {
-            // 2. Performance: Use 'onBefore' to show a loading state if you have one
-            patch(route('orders.updateStatus', order.id), {
-                status: newStatus,
-                cancel_reason: null
-            }, { 
-                preserveScroll: true,
-                preserveState: true, // Prevents losing local state
-                onSuccess: () => {
-                    // Done!
-                }
-            });
-        }
-    };
+
+const handleStatusChange = (order, newStatus) => {
+    if (newStatus === 'cancelled') {
+        setSelectedOrder(order);
+        setData({ status: 'cancelled', cancel_reason: '' });
+        setShowCancelModal(true);
+    } else {
+        // 2. Use router.patch (NOT the patch from useForm)
+        // router.patch(url, data, options)
+        router.patch(route('orders.updateStatus', order.id), {
+            status: newStatus,
+            cancel_reason: null
+        }, { 
+            preserveScroll: true,
+            // Force Inertia to update the page data
+            onSuccess: () => {
+                console.log("Status updated successfully!");
+            },
+            onError: (errors) => {
+                console.error("Update failed:", errors);
+            }
+        });
+    }
+};
+
+
 
 
 
@@ -80,7 +85,7 @@ export default function OrdersPage({ ordersData }) {
                                             <th>Customer</th>
                                             <th>Date</th>
                                             <th>Total</th>
-                                            <th>Status Update</th> {/* Changed header */}
+                                            <th>Status Update</th> 
                                             <th>Payment</th>
                                             <th>Phone</th>
                                             <th>Action</th>
@@ -93,7 +98,7 @@ export default function OrdersPage({ ordersData }) {
                                                     <td>{order.id}</td>
                                                     <td>{order.customer?.name || 'Guest'}</td>
                                                     <td>{moment(order.order_date).format('DD/MM/YYYY HH:mm')}</td>
-                                                    <td><b className="text-primary">${Number(order.order_total).toFixed(2)}</b></td>
+                                                    <td><b className="text-primary">${Number(order.order_total + 2).toFixed(2)}</b></td>
                                                     
                                                     {/* FIX: Select must be inside a <td> */}
                                                     <td>
@@ -107,8 +112,8 @@ export default function OrdersPage({ ordersData }) {
                                                             disabled={processing}
                                                         >
                                                             <option value="pending">Pending</option>
-                                                            <option value="completed">Done</option>
-                                                            <option value="cancelled">Cancel</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="cancelled">Cancelled</option>
                                                         </select>
                                                     </td>
 

@@ -8,10 +8,17 @@ use Inertia\Inertia;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Book::with('category');
+
+    if ($request->search) {
+        $query->where('title', 'like', '%' . $request->search . '%')
+              ->orWhere('author', 'like', '%' . $request->search . '%');
+    }
         return Inertia::render('Books/Index', [
-            'bookData' => Book::with('category')->paginate(10),
+            'bookData' => $query->paginate(10)->withQueryString(),
+            'filters' => $request->only('search'),
         ]);
     }
 

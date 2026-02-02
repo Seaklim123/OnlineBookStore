@@ -26,6 +26,8 @@ class OrderController extends Controller
         $cart = ShoppingCart::where('customer_id', auth()->id())
             ->with('items.book')
             ->firstOrFail();
+        
+        $shippingFee = 2.00; 
 
         $order = Order::create([
             'customer_id' => auth()->id(),
