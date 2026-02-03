@@ -20,6 +20,7 @@ export default function Show({ book, auth }) {
                         </div>
                         <div className="col-md-8">
                             <h2>{book.title}</h2>
+                            <p><strong>Pages:</strong> {book.pages}</p>
                             <p><strong>Author:</strong> {book.author}</p>
                             <p><strong>Category:</strong> {book.category?.name || 'No category'}</p>
                             <p><strong>Price:</strong> {book.price ? `${book.price} $` : 'Not available'}</p>

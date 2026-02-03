@@ -31,12 +31,12 @@
                 <!-- ADD THIS DATA CELL -->
                 <td>{{ $order->customer->name ?? 'Guest/Deleted' }}</td> 
                 <td>{{ $order->created_at->format('d/m/Y') }}</td>
-                <td>${{ number_format($order->order_total, 2) }}</td>
+                <td>${{ number_format($order->order_total + 2, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
-    <div class="total">Grand Total: ${{ number_format($total, 2) }}</div>
+    <div class="total">Grand Total: ${{ number_format($total + 2, 2) }}</div>
 </body>
 </html>

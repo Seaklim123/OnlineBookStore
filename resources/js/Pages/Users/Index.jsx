@@ -100,7 +100,7 @@ export default function UserPage({ users }) {
                                                                 </span>
                                                             ))
                                                         ) : (
-                                                            <span className="badge badge-secondary">No Role</span>
+                                                            <span className="badge badge-info mr-1">customer</span>
                                                         )}
                                                     </td>
                                                     <td>{moment(item?.created_at).format("DD/MM/YYYY")}</td>

@@ -118,6 +118,9 @@ export default function BooksPage({ bookData }) {
                                                 {/* Title */}
                                                 <td>{book.title}</td>
 
+                                                {/* Title */}
+                                                <td>{book.pages}</td>
+
                                                 {/* Author */}
                                                 <td>{book.author || '-'}</td>
 

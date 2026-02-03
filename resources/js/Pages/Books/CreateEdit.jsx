@@ -54,7 +54,7 @@ export default function BooksCreateEdit({ datas, categories }) {
                             <div className="card-body">
                                 <div className="row">
                                     {/* Book Title */}
-                                    <div className="form-group col-md-6">
+                                    <div className="form-group col-md-4">
                                         <label className="text-uppercase small font-weight-bold">
                                             <span className="text-danger">*</span> Book Title
                                         </label>
@@ -67,8 +67,22 @@ export default function BooksCreateEdit({ datas, categories }) {
                                         <InputError message={errors.title} />
                                     </div>
 
+                                    {/* Book Pages */}
+                                    <div className="form-group col-md-4">
+                                        <label className="text-uppercase small font-weight-bold">
+                                            <span className="text-danger">*</span> Book Pages
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={data.pages}
+                                            onChange={(e) => setData('pages', e.target.value)}
+                                            className={`form-control ${errors.pages && 'is-invalid'}`}
+                                        />
+                                        <InputError message={errors.pages} />
+                                    </div>
+
                                     {/* Author */}
-                                    <div className="form-group col-md-6">
+                                    <div className="form-group col-md-4">
                                         <label className="text-uppercase small font-weight-bold">
                                             <span className="text-danger">*</span> Author
                                         </label>

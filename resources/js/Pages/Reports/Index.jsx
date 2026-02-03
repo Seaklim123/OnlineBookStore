@@ -29,7 +29,7 @@ const Index = ({ orders, totalRevenue, filters }) => {
                                 <div className="p-3 bg-light rounded">
                                     <small className="text-muted">Total Completed Revenue</small>
                                     <h3 className="text-primary font-weight-bold mb-0">
-                                        ${Number(totalRevenue).toLocaleString()}
+                                        ${Number(totalRevenue + 2).toLocaleString()}
                                     </h3>
                                 </div>
                             </div>
@@ -50,7 +50,7 @@ const Index = ({ orders, totalRevenue, filters }) => {
                                         <td>#{order.id}</td>
                                         <td>{order.customer?.name}</td>
                                         <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                                        <td className="text-right">${Number(order.order_total).toFixed(2)}</td>
+                                        <td className="text-right">${Number(order.order_total + 2).toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>

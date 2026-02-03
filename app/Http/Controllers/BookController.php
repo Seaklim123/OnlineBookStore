@@ -12,14 +12,38 @@ class BookController extends Controller
     {
         $query = Book::with('category');
 
-    if ($request->search) {
-        $query->where('title', 'like', '%' . $request->search . '%')
-              ->orWhere('author', 'like', '%' . $request->search . '%');
-    }
+    // 1. Search by title or author
+        $query->when($request->search, function ($q, $search) {
+       
+        $q->where(function ($subQuery) use ($search) {
+            $subQuery->where('title', 'like', '%' . $search . '%')
+                     ->orWhere('author', 'like', '%' . $search . '%');
+        });
+    });
+
+    // 2. Category Filter
+        $query->when($request->category_id, function ($q, $categoryId) {
+        $q->where('category_id', $categoryId);
+    });
+
+    // 3. Price Range Filters
+        $query->when($request->min_price, function ($q, $min) {
+        $q->where('price', '>=', $min);
+    });
+
+     $query->when($request->max_price, function ($q, $max) {
+        $q->where('price', '<=', $max);
+    });
+
+    // if ($request->search) {
+    //     $query->where('title', 'like', '%' . $request->search . '%')
+    //           ->orWhere('author', 'like', '%' . $request->search . '%');
+    // }
         return Inertia::render('Books/Index', [
-            'bookData' => $query->paginate(10)->withQueryString(),
-            'filters' => $request->only('search'),
-        ]);
+        'bookData' => $query->paginate(10)->withQueryString(),
+        'filters' => $request->only(['search', 'category_id', 'min_price', 'max_price']),
+        'categories' => Category::all(), 
+    ]);
     }
 
     public function create()
@@ -36,10 +60,11 @@ class BookController extends Controller
     $request->validate([
         'category_id' => 'required|exists:categories,id',
         'title'       => 'required|string|max:255',
+        'pages'       => 'required|string|max:255',
         'author'      => 'required|string|max:255',
         'price'       => 'required|numeric|min:0',
         'stock'       => 'required|integer|min:0',
-        'cover_image' => 'nullable|image|max:2048', // Max 2MB
+        'cover_image' => 'nullable|image|max:2048', 
     ]);
 
     // Handle File Upload if exists
@@ -74,6 +99,7 @@ class BookController extends Controller
     $request->validate([
         'category_id' => 'required|exists:categories,id',
         'title'       => 'required|string|max:255',
+        'pages'       => 'required|string|max:255',
         'author'      => 'required|string|max:255',
         'description' => 'nullable|string',
         'price'       => 'required|numeric|min:0',
