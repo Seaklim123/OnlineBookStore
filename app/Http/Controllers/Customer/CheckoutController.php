@@ -23,6 +23,7 @@ class CheckoutController extends Controller
         ->where('status', 0)
         ->first();
 
+
     if (!$cart || $cart->items->isEmpty()) {
         return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
     }
@@ -72,7 +73,7 @@ class CheckoutController extends Controller
                 foreach ($cart->items as $item) {
                     if ($item->book->stock < $item->quantity) {
                         // This message will be caught by the 'catch' block below
-                        throw new \Exception("Insufficient stock for: {$item->book->title}");
+                        throw new \Exception("Sorry, '{$item->book->title}' is out of stock.");
                     }
 
                     OrderItem::create([

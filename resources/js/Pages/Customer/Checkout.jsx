@@ -5,25 +5,6 @@ import Footer from '@/Components/FooterGuest';
 import Swal from 'sweetalert2';
 
 
-Swal.fire({
-    title: 'Out of Stock', // Cleaner title
-    text: 'Insufficient stock for: Positive thinking',
-    icon: 'error', // Use a visually appealing icon
-    showClass: {
-        popup: 'animate__animated animate__fadeInDown' // Add subtle animation
-    },
-    hideClass: {
-        popup: 'animate__animated animate__fadeOutUp'
-    },
-    confirmButtonText: 'Browse Books',
-    confirmButtonColor: '#bd874e', // Your brand color
-    // Add custom CSS properties directly or via a class
-    customClass: {
-        popup: 'shadow-2xl rounded-xl',
-        confirmButton: 'px-6 py-2'
-    },
-    });
-
 const InputField = React.memo(({ label, id, value, onChange, error, type = 'text', placeholder, pattern }) => (
     <div>
         <label htmlFor={id} className="block text-sm font-semibold text-stone-700 mb-2">{label}</label>
@@ -44,6 +25,7 @@ const InputField = React.memo(({ label, id, value, onChange, error, type = 'text
 
 export default function Checkout({ auth, cart }) {
     const { flash } = usePage().props; 
+
     const { data, setData, post, processing, errors } = useForm({
         phone_number: '',
         shipping_address: '',
@@ -52,8 +34,15 @@ export default function Checkout({ auth, cart }) {
     });
 
     useEffect(() => {
-        if (flash?.error) alert(flash.error);
-    }, [flash]);
+        if (!flash?.error) return;
+
+        Swal.fire({
+            text: flash.error, // Use backend message
+            icon: 'error',
+            confirmButtonText: 'Browse Books',
+            confirmButtonColor: '#bd874e',
+        });
+    }, [flash?.error]);
 
     const shippingFee = 2.00;
     const subtotal = cart.items.reduce((t, i) => t + (parseFloat(i.price) * i.quantity), 0);
