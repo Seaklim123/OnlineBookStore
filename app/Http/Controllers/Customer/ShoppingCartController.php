@@ -34,23 +34,44 @@ public function add(Request $request, $book)
 
     $bookModel = Book::findOrFail($book);
 
+     
+    if ($bookModel->stock < 1) {
+        return back()->with('error', 'This book is out of stock.');
+    }
+
+     
+    if ($request->quantity > $bookModel->stock) {
+        return back()->with('error', 'Requested quantity exceeds available stock.');
+    }
+
     $cart = ShoppingCart::firstOrCreate([
         'customer_id' => Auth::id(),
         'status' => 0,
     ]);
 
-    // The result of this operation is what we need to inspect
-    $cartItem = $cart->items()->updateOrCreate(
-        ['book_id' => $bookModel->id],
-        [
-            'quantity' => $request->quantity,
-            'price' => $bookModel->price,
-        ]
-    );
+        $cartItem = $cart->items()->where('book_id', $bookModel->id)->first();
+
+        if ($cartItem) {
+            $newQuantity = $cartItem->quantity + $request->quantity;
+
+            if ($newQuantity > $bookModel->stock) {
+                return back()->with('error', 'Not enough stock for this book.');
+            }
+
+            $cartItem->update([
+                'quantity' => $newQuantity,
+            ]);
+        } else {
+            $cart->items()->create([
+                'book_id' => $bookModel->id,
+                'quantity' => $request->quantity,
+                'price' => $bookModel->price,
+            ]);
+        }
     
     
 
-    return back()->with('success', 'Book added!');
+    return back()->with('success', 'Book added to cart!');
 }
 
 
@@ -62,14 +83,21 @@ public function add(Request $request, $book)
     ]);
     
 
-    $cartItem->update([
-        'quantity' => $request->quantity
-    ]);
+    $book = $cartItem->book;
 
-    return back()->with('success', 'Quantity updated');
+        // ❌ BLOCK: quantity exceeds stock
+        if ($request->quantity > $book->stock) {
+            return back()->with('error', 'Not enough stock available.');
+        }
+
+        $cartItem->update([
+            'quantity' => $request->quantity
+        ]);
+
+        return back()->with('success', 'Quantity updated');
 }
 
-public function destroy(ShoppingCartItem $cartItem) // Change 'destroy' to 'remove'
+public function destroy(ShoppingCartItem $cartItem) 
 {
     $cartItem->delete();
 

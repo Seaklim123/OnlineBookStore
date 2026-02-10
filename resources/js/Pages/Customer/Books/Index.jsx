@@ -143,10 +143,22 @@ export default function Index({ books, auth, categories }) {
 
                                     <div className="space-y-2 mt-auto">
                                         <button
-                                            onClick={() => handleAddToCart(book.id)}
-                                            className="w-full bg-[#bda081] hover:bg-[#a68b6d] text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                            disabled={book.stock === 0}
+                                            onClick={() => {
+                                                if (book.stock > 0) {
+                                                    handleAddToCart(book.id);
+                                                }
+                                            }}
+                                            className={`w-full text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm
+                                                ${book.stock === 0
+                                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                                    : 'bg-[#bda081] hover:bg-[#a68b6d] text-white'
+                                                }
+                                            `}
                                         >
-                                            <span>🛒 Add to Cart</span>
+                                            <span>
+                                                {book.stock === 0 ? '❌ Out of Stock' : '🛒 Add to Cart'}
+                                            </span>
                                         </button>
                                         <button
                                             onClick={() => handleViewBook(book.id)}

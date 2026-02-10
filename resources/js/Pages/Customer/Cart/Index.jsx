@@ -12,12 +12,38 @@ export default function Cart({ cart, auth }) {
     }, [cart]);
 
     const handleQuantityChange = (cartItemId, newQty) => {
-        if (newQty < 1) return;
-        setCartItems(prev =>
-            prev.map(item => item.id === cartItemId ? { ...item, quantity: newQty } : item)
-        );
-        router.put(route('cart.update', cartItemId), { quantity: newQty }, { preserveScroll: true });
-    };
+    if (newQty < 1) return;
+
+    // 1. Find the book title from your local state before sending the request
+    const itemBeingUpdated = cartItems.find(item => item.id === cartItemId);
+    const bookTitle = itemBeingUpdated?.book?.title || 'Book';
+
+    router.put(route('cart.update', cartItemId), { quantity: newQty }, { 
+        preserveScroll: true,
+        onSuccess: () => {
+            // Optional: Success toast
+        },
+        onError: () => {
+            // This triggers if Laravel validation fails
+        },
+        onFinish: () => {
+            // 2. Check the flash messages sent from the Controller
+            const flash = router.page.props.flash;
+            
+            if (flash.error || flash.sorry) {
+                Swal.fire({
+                    icon: 'error',
+                    title: bookTitle, // <--- This now shows the actual Book Title
+                    text: flash.error || flash.sorry,
+                    confirmButtonColor: '#bda081',
+                });
+
+                // 3. Reset the local state so the UI doesn't show the wrong quantity
+                setCartItems(cart?.items || []);
+            }
+        }
+    });
+};
 
     const handleRemoveItem = (cartItemId) => {
         Swal.fire({

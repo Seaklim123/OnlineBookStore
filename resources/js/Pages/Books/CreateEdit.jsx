@@ -8,7 +8,8 @@ export default function BooksCreateEdit({ datas, categories }) {
     const { data, setData, post, errors, reset, processing } =
         useForm({
             title: datas?.title || '',
-            author: datas?.author || '', // Added Author
+            pages: datas?.pages || '',
+            author: datas?.author || '', 
             description: datas?.description || '',
             category_id: datas?.category_id || '',
             price: datas?.price || '',

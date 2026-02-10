@@ -55,3 +55,12 @@ php artisan make:controller OrderController
 
 
 php artisan make:model YourModelName -mcr
+
+
+# testing
+- composer require --dev phpunit/phpunit
+- ./vendor/bin/phpunit --version
+1. php artisan test
+2. php artisan test --testsunite=Unit
+3. php artisan make:test NameTest --unit
+
