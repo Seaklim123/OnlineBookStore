@@ -4,7 +4,7 @@ import { Link, useForm, Head } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 
-export default function LoginModal({ isOpen: propIsOpen, onClose, status, canResetPassword }) {
+export default function LoginModal({  isOpen: propIsOpen, onClose, onOpenRegister, status, canResetPassword })  {
     const page = usePage();
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
@@ -146,10 +146,8 @@ export default function LoginModal({ isOpen: propIsOpen, onClose, status, canRes
                         <p className="text-gray-600">
                             Don't have an account?{' '}
                             <button
-                                onClick={() => {
-                                    if (onClose) onClose(); // close login
-                                    document.getElementById('openRegister')?.click(); // trigger register
-                                }}
+                                type="button" 
+                                onClick={onOpenRegister} // This calls the function you just added above
                                 className="text-[#bda081] hover:text-[#ddac78] font-semibold"
                             >
                                 Register

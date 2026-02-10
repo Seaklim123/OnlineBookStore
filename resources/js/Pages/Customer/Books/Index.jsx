@@ -5,6 +5,10 @@ import Footer from '@/Components/FooterGuest';
 import Swal from 'sweetalert2';
 
 export default function Index({ books, auth, categories }) {
+    const [loginOpen, setLoginOpen] = useState(false);
+    const [registerOpen, setRegisterOpen] = useState(false);
+
+
     const [search, setSearch] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
     const [filteredBooks, setFilteredBooks] = useState(books.data || []);
@@ -34,7 +38,7 @@ export default function Index({ books, auth, categories }) {
             icon: 'info',
             confirmButtonColor: '#bda081',
         }).then(() => {
-            router.visit('/login');
+            setLoginOpen(true); 
         });
         return;
     }
@@ -70,7 +74,11 @@ export default function Index({ books, auth, categories }) {
     return (
         <div className="min-h-screen flex flex-col bg-[#f5eadf]">
             <Head title="Books Store" />
-            <Navbar auth={auth} />
+            <Navbar  auth={auth} 
+                loginOpen={loginOpen} 
+                setLoginOpen={setLoginOpen}     
+                registerOpen={registerOpen} 
+                setRegisterOpen={setRegisterOpen} />
 
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, Head, useForm } from '@inertiajs/react';
 
-export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
+export default function RegisterModal({ isOpen, onClose, onOpenLogin }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -10,16 +10,6 @@ export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
     });
 
     const [customError, setCustomError] = useState('');
-    const [isOpen, setIsOpen] = useState(!!propIsOpen);
-
-    useEffect(() => {
-        if (propIsOpen !== undefined) setIsOpen(!!propIsOpen);
-    }, [propIsOpen]);
-
-    const close = () => {
-        setIsOpen(false);
-        if (onClose) onClose();
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -43,8 +33,6 @@ export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
             onError: (errs) => {
                 const messages = Object.values(errs).flat().join(' ');
                 setCustomError(messages);
-
-                if (onClose) onClose();
             },
         });
     };
@@ -54,14 +42,14 @@ export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
     return (
         <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-            onClick={close}
+            onClick={onClose}
         >
             <div
                 className="relative w-full max-w-md mx-auto"
                 onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
             >
                 <button
-                    onClick={close}
+                    onClick={onClose}
                     className="absolute -top-3 -right-3 bg-white rounded-full p-1 shadow text-gray-700 hover:text-gray-900"
                 >
                     ✕
@@ -135,9 +123,13 @@ export default function RegisterModal({ isOpen: propIsOpen, onClose }) {
                     <div className="mt-4 text-center">
                         <p className="text-gray-600">
                             Already have an account?{' '}
-                            <Link href={route('login')} className="text-[#bda081] hover:text-[#ddac78] font-semibold">
-                                Login here
-                            </Link>
+                            <button
+    type="button"
+    onClick={onOpenLogin}
+    className="text-[#bda081] hover:text-[#ddac78] font-semibold"
+>
+    Login here
+</button>
                         </p>
                     </div>
                 </div>

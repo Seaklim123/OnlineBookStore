@@ -5,6 +5,9 @@ import Navbar from '@/Components/Navbar';
 import Footer from '@/Components/FooterGuest';
 
 export default function Welcome({ auth, bestSellers = [] }) {
+    const [loginOpen, setLoginOpen] = useState(false);
+    const [registerOpen, setRegisterOpen] = useState(false);
+
     const [scrollY, setScrollY] = useState(0);
 
     useEffect(() => {
@@ -15,6 +18,10 @@ export default function Welcome({ auth, bestSellers = [] }) {
 
     // ✅ ADD TO CART FUNCTION
     const handleAddToCart = (bookId) => {
+        if (!auth?.user) {
+            setLoginOpen(true); // Open modal if not logged in
+            return;
+        }
         router.post(route('cart.add', { book: bookId }), { quantity: 1 }, { preserveScroll: true });
     };
 
@@ -26,7 +33,12 @@ export default function Welcome({ auth, bestSellers = [] }) {
     return (
         <>
             <Head title="Welcome to ចង់អាន" />
-            <Navbar auth={auth} />
+            <Navbar auth={auth} 
+                loginOpen={loginOpen} 
+                setLoginOpen={setLoginOpen}
+                registerOpen={registerOpen}
+                setRegisterOpen={setRegisterOpen}
+            /> 
 
             <div className="min-h-screen bg-[#f5eadf] text-stone-800">
                 {/* HERO SECTION */}

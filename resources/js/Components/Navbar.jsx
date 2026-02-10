@@ -4,9 +4,7 @@ import RegisterModal from '@/Components/RegisterModal';
 import LoginModal from '@/Components/LoginModal';
 import Swal from 'sweetalert2';
 
-const Navbar = ({ auth }) => {
-    const [loginOpen, setLoginOpen] = useState(false);
-    const [registerOpen, setRegisterOpen] = useState(false);
+const Navbar = ({ auth, loginOpen, setLoginOpen, registerOpen, setRegisterOpen }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Mobile menu state
 
 const logout = () => {
@@ -86,8 +84,8 @@ const logout = () => {
                                 </>
                             ) : (
                                 <div className="space-x-4">
-                                    <button onClick={() => setLoginOpen(true)} className="hover:text-blue-200 font-medium">Login</button>
-                                    <button onClick={() => setRegisterOpen(true)} className="bg-white text-[#bda081] px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition">Register</button>
+                                    <button onClick={() => setLoginOpen(true)}>Login</button>
+                                    <button onClick={() => setRegisterOpen(true)}>Register</button>
                                 </div>
                             )}
                         </div>
@@ -137,8 +135,25 @@ const logout = () => {
                 </div>
 
                 {/* Modals */}
-                <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
-                <RegisterModal isOpen={registerOpen} onClose={() => setRegisterOpen(false)} />
+                {/* Change showLogin to loginOpen */}
+                <LoginModal 
+                    isOpen={loginOpen}  // Must match the prop name
+                    onClose={() => setLoginOpen(false)} 
+                    onOpenRegister={() => {
+                        setLoginOpen(false);
+                        setRegisterOpen(true);
+                    }}
+                    canResetPassword={true} 
+                />
+
+                <RegisterModal 
+                    isOpen={registerOpen} // Must match the prop name
+                    onClose={() => setRegisterOpen(false)}
+                    onOpenLogin={() => {
+                        setRegisterOpen(false);
+                        setLoginOpen(true);
+                    }}
+                />
             </nav>
         </>
     );
