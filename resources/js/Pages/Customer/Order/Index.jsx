@@ -48,7 +48,7 @@ export default function Index({ orders, auth }) {
                 ) : (
                     <div className="bg-white p-10 text-center rounded-lg shadow">
                         <p className="text-gray-500">No orders found yet.</p>
-                        <Link href="/" className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded">Start Shopping</Link>
+                        <Link href="/customer/books" className="inline-block mt-4 bg-[#bda081] text-white px-6 py-2 rounded">Start Shopping</Link>
                     </div>
                 )}
             </div>
