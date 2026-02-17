@@ -8,14 +8,13 @@ on:
 
 jobs:
   laravel-tests:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: shivammathur/setup-php@v2 # Use the latest version of this action
+    - uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2' # Change from 8.0 to 8.2 or 8.3
-        extensions: mbstring, dom, curl, libxml, sqlite3 # Ensure sqlite is here
+        php-version: '8.2'
+        extensions: mbstring, dom, curl, libxml, sqlite3
         
     - uses: actions/checkout@v4
     
@@ -23,25 +22,31 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
     - name: Install Dependencies
-      # Changed 'install' to 'update' to fix the lock file error
       run: composer update -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
     - name: Generate key
       run: php artisan key:generate
 
+    # --- UPDATED STEP ---
     - name: Create required directories
       run: |
         mkdir -p database
         mkdir -p storage/logs
+        mkdir -p storage/framework/sessions
+        mkdir -p storage/framework/views
+        mkdir -p storage/framework/cache
         mkdir -p bootstrap/cache
         touch database/database.sqlite
     
     - name: Set directory permissions
-      run: chmod -R 775 storage bootstrap/cache
+      run: chmod -R 777 storage bootstrap/cache
 
     - name: Execute tests
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        CACHE_DRIVER: array
+        # Use array drivers for speed and to avoid disk-path issues
+        CACHE_STORE: array
+        SESSION_DRIVER: array
+        VIEW_COMPILED_PATH: storage/framework/views
       run: php artisan test
