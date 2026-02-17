@@ -29,13 +29,19 @@ jobs:
     - name: Generate key
       run: php artisan key:generate
 
-    - name: Create Database
+    - name: Create required directories
       run: |
         mkdir -p database
+        mkdir -p storage/logs
+        mkdir -p bootstrap/cache
         touch database/database.sqlite
+    
+    - name: Set directory permissions
+      run: chmod -R 775 storage bootstrap/cache
 
     - name: Execute tests
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
+        CACHE_DRIVER: array
       run: php artisan test
