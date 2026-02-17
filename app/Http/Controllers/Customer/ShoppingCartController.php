@@ -69,7 +69,6 @@ public function add(Request $request, $book)
             ]);
         }
     
-    
 
     return back()->with('success', 'Book added to cart!');
 }

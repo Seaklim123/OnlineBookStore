@@ -68,12 +68,13 @@ Route::middleware('auth')->group(function () {
     // ===== BOOKS =====
     Route::get('/books', [BookController::class, 'index'])->name('books.index')->middleware(['check:book-list']);
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create')->middleware(['check:book-create']);
-    Route::post('/books', [BookController::class, 'store'])->name('books.store');
+    Route::post('/books', [BookController::class, 'store'])->name('books.store')->middleware(['check:book-create']);
+;
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
-    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
-    Route::patch('/books/{book}', [BookController::class, 'update'])->name('books.update');
+    Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit')->middleware(['check:book-edit']);
+    Route::patch('/books/{book}', [BookController::class, 'update'])->name('books.update')->middleware(['check:book-edit']);
     // Route::get('/books/{id}', [BookController::class, 'edit'])->name('books.edit');
-    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+    Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy')->middleware(['check:book-delete']);
 
     // ===== ORDERS =====
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
