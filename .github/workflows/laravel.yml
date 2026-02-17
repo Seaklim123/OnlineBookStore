@@ -11,42 +11,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: shivammathur/setup-php@v2
+    - uses: actions/checkout@v4
+
+    # 1. Setup PHP
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
         extensions: mbstring, dom, curl, libxml, sqlite3
-        
-    - uses: actions/checkout@v4
-    
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+        coverage: none
 
-    - name: Install Dependencies
+    # 2. Setup Node.js (Fixes "Vite manifest not found")
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    # 3. Install PHP Dependencies
+    - name: Install Composer Dependencies
       run: composer update -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-    - name: Generate key
-      run: php artisan key:generate
-
-    # --- UPDATED STEP ---
-    - name: Create required directories
+    # 4. Install Node Dependencies & Build Assets
+    - name: Install NPM & Build
       run: |
-        mkdir -p database
-        mkdir -p storage/logs
-        mkdir -p storage/framework/sessions
-        mkdir -p storage/framework/views
-        mkdir -p storage/framework/cache
-        mkdir -p bootstrap/cache
-        touch database/database.sqlite
-    
-    - name: Set directory permissions
-      run: chmod -R 777 storage bootstrap/cache
+        npm install
+        npm run build
 
-    - name: Execute tests
+    # 5. Prepare Environment
+    - name: Prepare Laravel Environment
+      run: |
+        php -r "file_exists('.env') || copy('.env.example', '.env');"
+        php artisan key:generate
+        mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache
+        mkdir -p bootstrap/cache
+        chmod -R 777 storage bootstrap/cache
+        touch database/database.sqlite
+
+    # 6. Execute Tests
+    - name: Execute Tests
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        # Use array drivers for speed and to avoid disk-path issues
         CACHE_STORE: array
         SESSION_DRIVER: array
-        VIEW_COMPILED_PATH: storage/framework/views
+        # This tells Laravel to skip Vite manifest checks if needed
+        VITE_ENABLED: false 
       run: php artisan test
