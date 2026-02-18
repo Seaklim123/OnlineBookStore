@@ -38,11 +38,15 @@
         }
     },
     "scripts": {
-        "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+         "post-autoload-dump": [
+        "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+        "@php artisan package:discover --ansi"
+        ],
+        "post-install-cmd": [
+            "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views"
         ],
         "post-update-cmd": [
+            "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [
