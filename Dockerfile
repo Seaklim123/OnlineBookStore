@@ -1,5 +1,8 @@
-# Use official PHP image
-FROM php:8.2-cli
+# Use PHP + Apache image
+FROM php:8.2-apache
+
+# Set working directory
+WORKDIR /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -15,8 +18,8 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Set working directory
-WORKDIR /var/www
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
 # Copy project files
 COPY . .
@@ -39,8 +42,13 @@ RUN php artisan config:clear
 RUN php artisan cache:clear
 RUN php artisan route:clear
 RUN php artisan view:clear
-# Expose port
-EXPOSE 8000
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
+
+# Expose port 80
+EXPOSE 80
+
+# Start Apache server in foreground
+CMD ["apache2-foreground"]
